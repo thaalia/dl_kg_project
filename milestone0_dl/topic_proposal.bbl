@@ -1,0 +1,36 @@
+\begin{thebibliography}{3}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Ali et~al.(2021)Ali, Berrendorf, Hoyt, Vermue, Sharifzadeh, Tresp, and
+  Lehmann]{ali2021pykeen}
+M.~Ali, M.~Berrendorf, C.~T. Hoyt, L.~Vermue, S.~Sharifzadeh, V.~Tresp, and
+  J.~Lehmann.
+\newblock {PyKEEN} 1.0: A python library for training and evaluating knowledge
+  graph embeddings.
+\newblock \emph{Journal of Machine Learning Research}, 22\penalty0
+  (82):\penalty0 1--6, 2021.
+\newblock \href{https://jmlr.org/papers/v22/20-825.html}{JMLR page (PDF)};
+  \href{https://pykeen.readthedocs.io/}{documentation}.
+
+\bibitem[Bordes et~al.(2013)Bordes, Usunier, Garcia-Dur{\'a}n, Weston, and
+  Yakhnenko]{bordes2013translating}
+A.~Bordes, N.~Usunier, A.~Garcia-Dur{\'a}n, J.~Weston, and O.~Yakhnenko.
+\newblock Translating embeddings for modeling multi-relational data.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2013.
+\newblock
+  \href{https://proceedings.neurips.cc/paper/2013/hash/1cecc7a77928ca8133fa24680a24d222-Abstract.html}{NeurIPS
+  proceedings (PDF)}.
+
+\bibitem[Sun et~al.(2019)Sun, Deng, Nie, and Tang]{sun2019rotate}
+Z.~Sun, Z.-H. Deng, J.-Y. Nie, and J.~Tang.
+\newblock {RotatE}: Knowledge graph embedding by relational rotation in complex
+  space.
+\newblock In \emph{International Conference on Learning Representations}, 2019.
+\newblock \href{https://openreview.net/forum?id=HkgEQnRqYQ}{OpenReview (paper +
+  PDF)}.
+
+\end{thebibliography}
