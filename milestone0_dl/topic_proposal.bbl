@@ -22,8 +22,9 @@ A.~Bordes, N.~Usunier, A.~Garcia-Dur{\'a}n, J.~Weston, and O.~Yakhnenko.
 \newblock Translating embeddings for modeling multi-relational data.
 \newblock In \emph{Advances in Neural Information Processing Systems}, 2013.
 \newblock
-  \href{https://proceedings.neurips.cc/paper/2013/hash/1cecc7a77928ca8133fa24680a24d222-Abstract.html}{NeurIPS
-  proceedings (PDF)}.
+  \href{https://papers.nips.cc/paper/5071-translating-embeddings-for-modeling-multi-relational-data}{NeurIPS
+  paper page};
+  \href{https://papers.nips.cc/paper/5071-translating-embeddings-for-modeling-multi-relational-data.pdf}{PDF}.
 
 \bibitem[Sun et~al.(2019)Sun, Deng, Nie, and Tang]{sun2019rotate}
 Z.~Sun, Z.-H. Deng, J.-Y. Nie, and J.~Tang.

@@ -24,9 +24,9 @@
 \author{%
   \begin{tabular}{rl}
     Thalia Delhaise  & student no.\ \textit{66937} \\[0.2em]
-    Lenny Briclet    & student no.\ \textit{\ldots} \\[0.2em]
-    André Fonseca    & student no.\ \textit{\ldots} \\[0.2em]
-    Rafael Gufler    & student no.\ \textit{\ldots}
+    Lenny Briclet    & student no.\ \textit{66926} \\[0.2em]
+    André Fonseca    & student no.\ \textit{58225} \\[0.2em]
+    Rafael Gufler    & student no.\ \textit{66081}
   \end{tabular}\\[0.45em]
   \small Deep Learning \& Knowledge Graphs --- unified project%
 }
@@ -41,7 +41,7 @@
 A \emph{knowledge graph} collects facts as triples $(h,r,t)$: head entity $h$, relation $r$, tail entity $t$. \emph{Link prediction} answers queries $(h,r,?)$ or $(?,r,t)$: given the training facts, which missing endpoint is most plausible? We follow standard knowledge graph embedding~\citep{bordes2013translating}: learn a score $f_\theta(h,r,t)\in\mathbb{R}$ so true triples rank above corrupted ones.
 
 \textbf{Pipeline (build the KG, then predict).}
-The project matches both courses in order: \textbf{(1)~Dataset $\rightarrow$ graph.} We use the public \textbf{FB15k-237} benchmark~\citep{sun2019rotate}---released as \textbf{real triple files} (train/validation/test splits). That release \emph{is} our dataset: thousands of facts about real-world entities, not a toy hand-drawn sketch. \textbf{Building} the KG means ingesting those triples, mapping strings to entity/relation IDs, forming the edge set $\mathcal{T}$ and the split, and loading the result into PyKEEN~\citep{ali2021pykeen}; we may also export a small RDF or edge-list slice for figures or the KG report. \textbf{(2)~Prediction.} We then train models only on $\mathcal{T}_{\mathrm{train}}$ and evaluate on held-out test triples (next paragraph). We do not invent a private ontology from scratch, but we still \textbf{materialize} the full multi-relational graph the methods run on.
+The project matches both courses in order: \textbf{(1)~Dataset $\rightarrow$ graph.} We use the public \textbf{FB15k-237} benchmark~\citep{sun2019rotate} - released as \textbf{real triple files} (train/validation/test splits). That release is our dataset: thousands of facts about real-world entities. \textbf{Building} the KG means ingesting those triples, mapping strings to entity/relation IDs, forming the edge set $\mathcal{T}$ and the split, and loading the result into PyKEEN~\citep{ali2021pykeen}; we may also export a small RDF or edge-list slice for figures or the KG report. \textbf{(2)~Prediction.} We then train models only on $\mathcal{T}_{\mathrm{train}}$ and evaluate on held-out test triples (next paragraph). We do not invent a private ontology from scratch, but we still \textbf{materialize} the full multi-relational graph the methods run on.
 
 \textbf{What the graph looks like.}
 Nodes are entities; each fact is a \textbf{directed, labeled} link $h \xrightarrow{r} t$. Many relation types exist, and the same pair $(h,t)$ can appear under different $r$. Equivalently, $\mathcal{G}=(\mathcal{E},\mathcal{R},\mathcal{T})$ with $\mathcal{T}\subseteq\mathcal{E}\times\mathcal{R}\times\mathcal{E}$. We keep the official benchmark partition unchanged (no extra subsampling).
@@ -50,7 +50,7 @@ Nodes are entities; each fact is a \textbf{directed, labeled} link $h \xrightarr
 Training uses only $\mathcal{T}_{\mathrm{train}}$: we minimize a \textbf{margin/ranking loss} and draw \textbf{negative} triples by corrupting head or tail (standard pipeline~\citep{bordes2013translating,sun2019rotate}). At test time, each $(h,r,t)\in\mathcal{T}_{\mathrm{test}}$ was unseen during training; we score all candidate completions and record the rank of the true entity. \textbf{Filtered} metrics~\citep{bordes2013translating}: when ranking the true tail for $(h,r,?)$, any other tail $t'$ with $(h,r,t')\in\mathcal{T}_{\mathrm{train}}\cup\mathcal{T}_{\mathrm{val}}\cup\mathcal{T}_{\mathrm{test}}$ is treated as ambiguous (not penalized as an error); the same for head prediction. We average results over head and tail prediction.
 
 \textbf{Scale.}
-FB15k-237 (Freebase-derived) counts: \textbf{14{,}541} entities, \textbf{237} relations, \textbf{272{,}115} train / \textbf{17{,}535} validation / \textbf{20{,}466} test triples---large enough to be meaningful, still feasible on Colab/GPU. An optional second graph (e.g.\ OGB link prediction) is possible; FB15k-237 remains the main result.
+FB15k-237 (Freebase-derived) counts: \textbf{14{,}541} entities, \textbf{237} relations, \textbf{272{,}115} train / \textbf{17{,}535} validation / \textbf{20{,}466} test triples -large enough to be meaningful, still feasible on Colab/GPU. An optional second graph (e.g.\ OGB link prediction) is possible; FB15k-237 remains the main result.
 
 \textbf{Method (planned).}
 \textbf{Baseline:} \textsc{TransE}~\citep{bordes2013translating}. \textbf{Stronger model:} \textsc{RotatE}~\citep{sun2019rotate}. Both via PyKEEN~\citep{ali2021pykeen} (same splits, negative sampling, and evaluator for fair comparison). We will record embedding dimension $d$, loss, optimizer, batch size, number of epochs (or early stopping on validation MRR), learning rate, seed, and GPU/CPU time. Course material fills in background reading.
