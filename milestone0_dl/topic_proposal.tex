@@ -20,7 +20,7 @@
 \setlength{\parskip}{0.32em}
 \setlength{\parindent}{0pt}
 
-\title{\textbf{Knowledge Graph Link Prediction with\\Deep Knowledge Graph Embedding Models}}
+\title{\textbf{FB15k-237 Link Prediction:\\Beyond Default KGE---Hard Negatives, GNNs, and Relation-Level Analysis}}
 \author{%
   \begin{tabular}{rl}
     Thalia Delhaise  & student no.\ \textit{66937} \\[0.2em]
@@ -28,7 +28,7 @@
     André Fonseca    & student no.\ \textit{58225} \\[0.2em]
     Rafael Gufler    & student no.\ \textit{66081}
   \end{tabular}\\[0.45em]
-  \small Deep Learning \& Knowledge Graphs --- unified project%
+  \small Deep Learning \& Knowledge Graphs --- unified project (all four members).%
 }
 \date{}
 
@@ -38,7 +38,7 @@
 \vspace{-1.1em}
 
 \textbf{Problem and motivation.}
-A \emph{knowledge graph} collects facts as triples $(h,r,t)$: head entity $h$, relation $r$, tail entity $t$. \emph{Link prediction} answers queries $(h,r,?)$ or $(?,r,t)$: given the training facts, which missing endpoint is most plausible? We follow standard knowledge graph embedding~\citep{bordes2013translating}: learn a score $f_\theta(h,r,t)\in\mathbb{R}$ so true triples rank above corrupted ones.
+A \emph{knowledge graph} collects facts as triples $(h,r,t)$. \emph{Link prediction} scores queries $(h,r,?)$ and $(?,r,t)$ using a learned $f_\theta(h,r,t)\in\mathbb{R}$~\citep{bordes2013translating}. \textbf{Research question:} under \textbf{matched} training conditions on FB15k-237, where do \textbf{\textsc{RotatE} vs.\ \textsc{TransE}} differ in \textbf{filtered} ranking---only in aggregate, or mainly on \textbf{specific relation / degree regimes}? Second, does \textbf{custom hard-negative training} (our PyTorch code) change those gaps vs.\ library default corruption? Third, how does a \textbf{relational GNN} link predictor compare to embedding-only KGE on the same splits? \textbf{What we aim to learn:} not a new SOTA claim, but \textbf{quantified} trade-offs (accuracy vs.\ compute; frequent vs.\ rare relations), and when each modeling choice helps or hurts.
 
 \textbf{Pipeline (build the KG, then predict).}
 The project matches both courses in order: \textbf{(1)~Dataset $\rightarrow$ graph.} We use the public \textbf{FB15k-237} benchmark~\citep{sun2019rotate} - released as \textbf{real triple files} (train/validation/test splits). That release is our dataset: thousands of facts about real-world entities. \textbf{Building} the KG means ingesting those triples, mapping strings to entity/relation IDs, forming the edge set $\mathcal{T}$ and the split, and loading the result into PyKEEN~\citep{ali2021pykeen}; we may also export a small RDF or edge-list slice for figures or the KG report. \textbf{(2)~Prediction.} We then train models only on $\mathcal{T}_{\mathrm{train}}$ and evaluate on held-out test triples (next paragraph). We do not invent a private ontology from scratch, but we still \textbf{materialize} the full multi-relational graph the methods run on.
@@ -49,16 +49,22 @@ Nodes are entities; each fact is a \textbf{directed, labeled} link $h \xrightarr
 \textbf{Task and evaluation protocol.}
 Training uses only $\mathcal{T}_{\mathrm{train}}$: we minimize a \textbf{margin/ranking loss} and draw \textbf{negative} triples by corrupting head or tail (standard pipeline~\citep{bordes2013translating,sun2019rotate}). At test time, each $(h,r,t)\in\mathcal{T}_{\mathrm{test}}$ was unseen during training; we score all candidate completions and record the rank of the true entity. \textbf{Filtered} metrics~\citep{bordes2013translating}: when ranking the true tail for $(h,r,?)$, any other tail $t'$ with $(h,r,t')\in\mathcal{T}_{\mathrm{train}}\cup\mathcal{T}_{\mathrm{val}}\cup\mathcal{T}_{\mathrm{test}}$ is treated as ambiguous (not penalized as an error); the same for head prediction. We average results over head and tail prediction.
 
-\textbf{Scale.}
-FB15k-237 (Freebase-derived) counts: \textbf{14{,}541} entities, \textbf{237} relations, \textbf{272{,}115} train / \textbf{17{,}535} validation / \textbf{20{,}466} test triples -large enough to be meaningful, still feasible on Colab/GPU. An optional second graph (e.g.\ OGB link prediction) is possible; FB15k-237 remains the main result.
+\textbf{Scale and Milestone~1 characterization.}
+FB15k-237 counts: \textbf{14{,}541} entities, \textbf{237} relations, \textbf{272{,}115} / \textbf{17{,}535} / \textbf{20{,}466} train/val/test triples. By Milestone~1 we add \textbf{dataset statistics} beyond counts: relation-frequency and (head/tail) \textbf{degree distributions}, plus short examples of \textbf{one-to-one / one-to-many / many-to-one} style patterns to motivate later error analysis. Optional second graph (e.g.\ OGB); FB15k-237 stays primary.
 
 \textbf{Method (planned).}
-\textbf{Baseline:} \textsc{TransE}~\citep{bordes2013translating}. \textbf{Stronger model:} \textsc{RotatE}~\citep{sun2019rotate}. Both via PyKEEN~\citep{ali2021pykeen} (same splits, negative sampling, and evaluator for fair comparison). We will record embedding dimension $d$, loss, optimizer, batch size, number of epochs (or early stopping on validation MRR), learning rate, seed, and GPU/CPU time. Course material fills in background reading.
+\textbf{Core comparison (matched where possible):} \textsc{TransE}~\citep{bordes2013translating} vs.\ \textsc{RotatE}~\citep{sun2019rotate} with the \textbf{same} splits, training budget, embedding size $d$, and filtered evaluator; PyKEEN~\citep{ali2021pykeen} for reproducible \textbf{data loading} and \textbf{default} KGE runs. \textbf{Controlled ablation axis:} negative-sampling / corruption strategy (default vs.\ our extension in~(1)); if time, a second axis (e.g.\ $d$ or training epochs) for efficiency--accuracy curves.
 
-\textbf{Metrics and qualitative analysis.}
-\textbf{Quantitative:} mean reciprocal rank (MRR) and Hits@$1$, Hits@$3$, Hits@$10$ under the filtered protocol, reported for head and tail (then averaged, as is standard). \textbf{Qualitative:} loss and validation MRR (or Hits@10) vs.\ epoch, plus a short look at a few test queries and their top-ranked entities.
+\textbf{Metrics, relation-wise analysis, and error study.}
+\textbf{Aggregate:} filtered MRR and Hits@$1$, Hits@$3$, Hits@$10$ (head, tail, then averaged). \textbf{Relation-wise:} same metrics \textbf{sliced} by relation frequency or degree bins (addresses ``only a single number'' risk). \textbf{Qualitative error analysis:} inspect successes/failures and relate them to relation ambiguity, tail/head frequency, or pattern type. \textbf{Conceptual note:} we keep \textbf{filtered} ranking as primary and briefly contrast why raw ranks would be optimistic~\citep{bordes2013translating}. Training/validation curves for all models.
 
-\vspace{0.2em}
+\textbf{Our contribution vs.\ library defaults.}
+PyKEEN gives a fair \textbf{baseline pipeline}; our \textbf{own implementation} (PyTorch / PyG or DGL) covers the \textbf{custom hard-negative} module, optional \textbf{bootstrap} code for CIs, \textbf{slice} evaluation scripts, and the \textbf{GNN} trainer---so the project is not ``only two API calls.''
+
+\textbf{Additional experiments (DL depth).}
+\textbf{(1)~Custom negative sampling.} Learned scorer $g_\phi$ and/or periodic hard-negative mining from current embeddings; \textbf{ablate} against uniform/Bernoulli corruption. \textbf{(2)~Slice + uncertainty.} Relation/degree slices; optional bootstrap CIs on the test query set. \textbf{(3)~GNN track.} Shallow \textsc{R-GCN} or \textsc{CompGCN} link predictor on the \textbf{same} splits (independent of~(1)). \textbf{Final readout:} default KGE vs.\ KGE+custom negatives vs.\ GNN, plus relation-wise tables and a short error discussion.
+
+\vspace{0.15em}
 \begin{footnotesize}
 \bibliographystyle{abbrvnat}
 \bibliography{references}

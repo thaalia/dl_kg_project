@@ -1,0 +1,38 @@
+## FCUL -- Deep Learning Milestone 1 + Knowledge Graphs D2 (project files in this folder)
+
+### Build PDFs
+From the repository root:
+  bash submissions/compile.sh
+Or, from each .tex directory:
+  pdflatex <file>.tex && bibtex <file> && pdflatex <file>.tex && pdflatex <file>.tex
+
+Outputs:
+  - submissions/deep_learning/milestone1/milestone1_dl.pdf   (3 pages: fits DL "Milestone 0 + max 2 pages" rule)
+  - submissions/knowledge_graphs/d2/kg_report_d2.pdf         (2 pages now; you may add text up to 4 for KG D2)
+
+Bibliography: submissions/shared/references.bib (path ../../shared/references in each .tex)
+
+### Optional: official LaTeX template
+Course handouts mention: https://github.com/cvpr-org/author-kit/releases
+You can copy `main.tex` style from the kit; keep the same section content.
+
+--- Deep Learning (Milestone 1) ---
+Checklist (from course PDF):
+- Data pipeline + preprocessing            -> Section 3
+- Baseline: model, depth, input shape, loss, optim, budget -> Section 4
+- Preliminary results + training curves   -> Section 5 (replace TBD + figure)
+- Known issues + next steps               -> Section 6
+- Skeleton / runnable code                -> code/train_baseline_kge.py
+
+Before submission:
+1)  pip install -r requirements.txt
+2)  python code/train_baseline_kge.py --model TransE --epochs 3
+3)  python code/train_baseline_kge.py --model RotatE --epochs 3
+4)  Copy printed metrics (and optional curves) from console / artifacts/ into the PDF.
+
+--- Knowledge Graphs (Deliverable 2) ---
+Checklist (from RC2526 project PDF):
+- Intro, problem, methodology + figure, planned experiments, preliminary, max 4 pages
+- kg_report_d2.pdf mirrors the project; add text if the professor wants closer to 4 pages.
+
+Moodle: upload as specified by each course (PDF; sometimes ZIP with code for DL).

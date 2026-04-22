@@ -1,0 +1,92 @@
+% Knowledge Graphs - Deliverable 2: first part of project report (max 4 pages without refs as per course)
+% CVPR/NeurIPS style: https://github.com/cvpr-org/author-kit/releases
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1.6cm]{geometry}
+\usepackage{microtype,booktabs,hyperref,graphicx}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{amsmath,amssymb}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.38em}
+\newcommand{\kteam}{Thalia Delhaise, Lenny Briclet, Andr\'e Fonseca, Rafael Gufler (DL + KG joint project)}
+
+\title{Link Prediction on a Multi-Relational Knowledge Graph:\\
+FB15k-237, KGE Baselines, and Planned Extensions (Hard Negatives \& GNN)}
+\author{\kteam}
+\date{RC2526 --- Deliverable 2 (Report part 1)}
+
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+\vspace{-0.5em}
+\subsection*{1.\ Introduction and motivation}
+A \textbf{knowledge graph} (KG) is a set of binary facts $(h,r,t)$ over a finite set of \textbf{entities} $\mathcal{E}$ and \textbf{relation types} $\mathcal{R}$. \textbf{Link prediction} (knowledge base completion) asks which missing triples are true: for a query with one side hidden, e.g.\ $(h,r,?)$, rank all candidate tail entities. This is a standard \textbf{learning on graphs} task with applications to semantic query answering and maintenance of large knowledge bases.
+
+In this project we (i) \textbf{materialize} a benchmark KG from the \textbf{FB15k-237} public triple files, (ii) run established \textbf{knowledge graph embedding} (KGE) models, and (iii) plan for graph-neural and negative-sampling extensions, as required by the combined Deep Learning and Knowledge Graphs project briefs.
+
+Our \textbf{contribution} is not a new dataset but: \textbf{reproducible} experiments on a standard graph; a clear \textbf{methodological} plan for \textbf{custom} (non-library-default) \textbf{negative sampling} and \textbf{relation-wise} evaluation; and a separate \textbf{relational GNN} for comparison, aligned on the \textbf{same} splits and \textbf{filtered} ranking metrics (Hits@$k$, MRR).
+
+\subsection*{2.\ Problem statement}
+\textbf{Formal graph.} $\mathcal{G}=(\mathcal{E},\mathcal{R},\mathcal{T})$ with $\mathcal{T}\subseteq\mathcal{E}\times\mathcal{R}\times\mathcal{E}$. The graph is \textbf{directed} and \textbf{multi-relational:} the same node pair can appear in several relations. Training sees only $\mathcal{T}_{\mathrm{train}}$. Validation and test are disjoint held-out \textbf{positive} triples.
+
+\textbf{Data.} \textbf{FB15k-237} (Freebase-derived)~\citep{sun2019rotate}: 14,541 entities, 237 relations, 272,115 / 17,535 / 20,466 training, validation, and test triples. The benchmark is widely used; inverse relations are removed to reduce trivial inferences. We load the official split via \textbf{PyKEEN}~\citep{ali2021pykeen}; optional RDF/edge export for a KG visualization slide is a minor technical step.
+
+\textbf{Task.} \textbf{Link prediction:} for each test triple, rank the correct head or tail under the \textbf{filtered} setting~\citep{bordes2013translating} (candidates that complete a \emph{known} triple in train, val, or test are not errors).
+
+\textbf{Success criteria.} (1)~Strong \textbf{aggregate} filtered MRR and Hits@1,3,10. (2)~Deeper \textbf{relation-wise} and \textbf{degree} analysis (D3). (3)~Ablations on \textbf{negative} strategies and, separately, a \textbf{GNN} baseline. We do not claim a new SOTA; we claim \textbf{clarity} of \textbf{where} models succeed or fail.
+
+\subsection*{3.\ Methodology}
+\paragraph{Phase A --- Classical KGE (Milestone~1--2).} We implement \textsc{TransE} and \textsc{RotatE}~\citep{sun2019rotate} with PyKEEN for a fair \textbf{first} line: same splits, $d$, optimiser, training budget, and \textbf{filtered} evaluation. The scoring function is learned; training uses margin/ranking loss and negative sampling. This serves as a \textbf{baseline} for the Deep Learning report.
+
+\paragraph{Phase B --- Custom negative mining (in-house PyTorch).} In parallel with KGE, we will implement a \textbf{learnt or scheduled hard-negative} mechanism: e.g.\ a small $g_\phi$ over a subset of corruptions, or periodic \textbf{mining} in embedding space, with ablations \textbf{against} uniform and Bernoulli \textbf{defaults.} This addresses the “not only default PyKEEN” feedback.
+
+\paragraph{Phase C --- Relational GNN.} A shallow \textsc{R-GCN} (or \textsc{CompGCN}) link predictor in \textbf{PyTorch Geometric} or \textbf{DGL}~\citep{schlichtkrull2018modeling}, trained for the \textbf{same} ranking task, provides a \textbf{message-passing} deep model independent of the negative-sampling research thread.
+
+\paragraph{Evaluation.} In addition to global MRR and Hits@$k$, we will report \textbf{slices} (relation frequency, entity degree) and a short \textbf{error} / case study. Optional bootstrap confidence bands on the test set.
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[node distance=0.35cm, font=\scriptsize, >=Latex, every node/.style={align=center,draw,inner sep=2pt}]
+\node (data) {FB15k-237\\triples (PyKEEN load)};
+\node[right=1.0cm of data] (kge) {KGE: TransE, RotatE\\filtered ranking};
+\node[right=0.7cm of kge] (neg) {Planned: custom\\negatives (PyTorch)};
+\node[below=0.55cm of kge] (gnn) {GNN: R-GCN--style\\(PyG / DGL)};
+\path[->] (data) edge (kge) (kge) edge (neg);
+\path[->] (data.south) ++(0.3,-0.1) -| (gnn.north);
+\end{tikzpicture}
+\caption{Methodology overview: shared data and metrics; KGE and GNN in parallel; hard negatives on the KGE branch. Same filtered protocol throughout.}
+\label{fig:method-kg}
+\end{figure}
+
+\subsection*{4.\ Planned experiments and preliminary results}
+\paragraph{Planned.} (1)~End-to-end TransE/RotatE; \textbf{match} $d$ and step budget. (2)~Custom negative ablations. (3)~GNN. (4)~Slice + qualitative analysis. (5)~Time and hardware notes.
+
+\paragraph{Preliminary (Milestone~1; update before submission).} Baseline KGE is running via a small script; \textbf{numeric} test metrics and learning curves are \textbf{to be inserted} from the same run the DL milestone uses. Table~\ref{tab:prel} is a \textbf{placeholder.}
+
+\begin{table}[h]
+\centering
+\small
+\caption{Preliminary or planned aggregate results (fill after first training run).}
+\label{tab:prel}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Setting & MRR (filtered) & Hits@10 (filtered) \\
+\midrule
+TransE        & TBD & TBD \\
+RotatE        & TBD & TBD \\
+R-GCN (later)  & TBD & TBD \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{5.\ Acknowledgment of course deliverables (D2 scope)}
+D2 (this document) is the \textbf{first} report slice: \textbf{introduction, problem, methodology, and planned/early results,} to be extended in D3 with full experiments, student contributions, and the Jupyter lab notebook, per RC2526 project text.
+
+\footnotesize
+\bibliographystyle{plainnat}
+\bibliography{../../shared/references}
+\end{document}
