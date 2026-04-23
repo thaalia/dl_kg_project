@@ -23,11 +23,11 @@
 \thispagestyle{empty}
 \vspace{-0.6em}
 \begin{abstract}
-We build the multi-relational \textbf{FB15k-237} graph, train \textbf{TransE} and \textbf{RotatE} under \textbf{matched} settings and \textbf{filtered} ranking, and report preliminary \textbf{MRR / Hits@k} and training curves. Next work centers on \textbf{custom hard-negative mining} (PyTorch) and \textbf{relation-wise} / error analysis; a \textbf{GNN} is \textbf{optional} for the final project if time allows. Code: \texttt{code/train\_baseline\_kge.py}. See Milestone~0 topic proposal: \texttt{milestone0\_dl/topic\_proposal.tex}.
+We build the multi-relational \textbf{FB15k-237} graph, train classical knowledge graph embedding baselines \textbf{TransE} and \textbf{RotatE} under matched hyperparameters and a \textbf{filtered} ranking protocol, and report preliminary \textbf{MRR / Hits@k} with training curves. Our central question is: \emph{do relation-structural patterns (symmetry, composition, inversion) explain where RotatE gains over TransE, and does custom hard negative mining amplify those gains?} This report covers the \textbf{data pipeline}, the \textbf{baseline} setup, and a concrete plan for Milestone~2: custom hard-negative sampling (standalone PyTorch), relation- and degree-wise slice metrics, and qualitative error analysis. Code: \texttt{code/train\_baseline\_kge.py} in the repository.
 \end{abstract}
 
 \subsection*{1.\ Introduction and plan}
-\emph{Goal:} given training triples $(h,r,t)$ in a knowledge graph, rank the correct missing entity for queries $(h,r,?)$ and $(?,r,t)$. We compare \textsc{TransE} to the stronger \textsc{RotatE}~\citep{sun2019rotate} on \textbf{identical} train/val/test partitions and the same \textbf{filtered} evaluation (true triples in any split are not treated as false tails/heads) per~\citet{bordes2013translating}. The question is: \emph{where} \textsc{RotatE} gains over \textsc{TransE} (aggregate vs.\ relation/degree slices), and later whether \textbf{custom} hard negatives change that picture vs.\ default sampling. Milestone~1: \textbf{data ready}, \textbf{baseline} end-to-end, \textbf{preliminary} metrics/curves, and a \textbf{plan} for hard negatives + slices (GNN only if time).
+\emph{Goal:} given training triples $(h,r,t)$ in a knowledge graph, rank the correct missing entity for queries $(h,r,?)$ and $(?,r,t)$. We compare \textsc{TransE} to the stronger \textsc{RotatE}~\citep{sun2019rotate} on \textbf{identical} train/val/test partitions and the same \textbf{filtered} evaluation (true triples in any split are not treated as false tails/heads) per~\citet{bordes2013translating}. The central scientific question is: \emph{do relation-structural patterns---symmetry, composition, inversion---explain where RotatE gains over TransE on FB15k-237, and does custom hard negative mining amplify or redistribute those gains?} This sharpens a pure benchmark comparison into an interpretable experimental claim about \emph{where} improvements appear (aggregate vs.\ relation- or degree-specific regimes). Our own contribution beyond PyKEEN consists of: (i)~a standalone \textbf{PyTorch} hard-negative sampler, (ii)~automated \textbf{slice evaluation} by relation and entity degree, and (iii)~a structured \textbf{error analysis}. Milestone~1 establishes: \textbf{data ready}, a \textbf{baseline} running end-to-end, \textbf{preliminary} metrics and curves, and a clear \textbf{next-step} plan.
 
 \subsection*{2.\ Problem statement, dataset, and evaluation}
 \textbf{Dataset.} \textbf{FB15k-237:} 14,541 entities, 237 relations, 272,115 / 17,535 / 20,466 train, validation, and test triples (official split)~\citep{sun2019rotate}. The graph is $\mathcal{G}=(\mathcal{E},\mathcal{R},\mathcal{T})$, $\mathcal{T}\subseteq\mathcal{E}\times\mathcal{R}\times\mathcal{E}$. No extra subsampling.
@@ -39,7 +39,7 @@ We build the multi-relational \textbf{FB15k-237} graph, train \textbf{TransE} an
 \subsection*{3.\ Data pipeline and preprocessing}
 \textbf{Download.} The benchmark is loaded via \textbf{PyKEEN}~\citep{ali2021pykeen} (dataset name \texttt{fb15k237}, cached locally on first use). The library maps each entity and relation to integer IDs and materializes a \texttt{TriplesFactory} for train, validation, and test.
 
-\textbf{Check.} We verify triple counts and disjointness of test from train. For Milestone~1, we will add simple \textbf{statistics} (to appear in the next version / Milestone~2): histogram of \textbf{relation} frequency and of entity \textbf{in-degree} / out-degree, plus one example each of a roughly one-to-many and many-to-one pattern for qualitative discussion.
+\textbf{Check.} We verify triple counts and disjointness of test from train. The training script computes and logs dataset \textbf{statistics}: relation-frequency histogram and entity \textbf{in-/out-degree} distribution (saved to \texttt{artifacts/baseline/dataset\_stats.json}). Milestone~2 will include explicit examples of one-to-one, one-to-many, many-to-one, and many-to-many relation patterns as direct motivation for the slice evaluation and error analysis.
 
 \subsection*{4.\ Baseline models and training setup (PyKEEN)}
 We start with two classical models with fixed scoring: \textsc{TransE} and \textsc{RotatE}~\citep{sun2019rotate}. The rest of this section is the \textbf{configuration we actually run} (edit \texttt{train\_baseline\_kge.py} if you change it).
@@ -51,10 +51,10 @@ We start with two classical models with fixed scoring: \textsc{TransE} and \text
 \textbf{Input / shape} & Mini-batch of triple indices; shape \texttt{[batch, 3]}. \\
 \textbf{Negatives} & Corrupt head or tail; Bernoulli as in KGE default practice. \\
 \textbf{Loss} & Margin / pairwise ranking (default per model in PyKEEN). \\
-\textbf{Optimiser} & Adam or AdamW; small weight decay. \\
-\textbf{Hyperparam.} & $d=128$; up to 50 epochs; \texttt{batch\_size}=512; LR $10^{-3}$; early stop if val MRR flat 10 epochs. \\
+\textbf{Optimiser} & Adam ($\beta_1=0.9$, $\beta_2=0.999$); LR $10^{-3}$. \\
+\textbf{Hyperparam.} & $d=128$; up to 15 epochs (preliminary); \texttt{batch\_size}=1024; LR $10^{-3}$; early stop if val MRR flat 3 epochs. Full runs with 50 epochs and patience 10 are planned for Milestone~2. \\
 \textbf{Seed / env.} & \texttt{random\_seed=42}; Python~3, PyTorch, PyKEEN; GPU optional. \\
-\textbf{Time budget} & (fill wall-clock after run) \\
+\textbf{Time budget} & TransE: MPS (Apple M-series); RotatE: CPU (MPS lacks complex-norm support). \\
 \end{tabular}
 \normalsize
 
@@ -68,7 +68,7 @@ The script writes \texttt{artifacts/baseline/<Model>\_summary.txt} and a PyKEEN 
 \node[draw,right=of M,align=center] (E) {Filtered\\ranking};
 \path[->] (D) edge (M) (M) edge (E);
 \end{tikzpicture}
-\caption{Baseline KGE data flow for Milestone~1. Later: custom hard-negative training and slice evaluation; GNN (optional).}
+\caption{Baseline KGE data flow for Milestone~1. Later work adds a custom hard-negative sampler (standalone PyTorch), relation- and degree-wise slice evaluation, and qualitative error analysis.}
 \label{fig:pipe}
 \end{figure}
 
@@ -83,8 +83,8 @@ The script writes \texttt{artifacts/baseline/<Model>\_summary.txt} and a PyKEEN 
 \toprule
 Model & MRR & H@1 & H@3 & H@10 & Notes \\
 \midrule
-TransE & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} & same $d$, budget \\
-RotatE & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} & idem \\
+TransE & 0.129 & 0.057 & 0.152 & 0.263 & 15 ep., bs=1024, MPS \\
+RotatE & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} & 15 ep., bs=1024, CPU \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -100,9 +100,9 @@ RotatE & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} & idem \\
 \end{figure}
 
 \subsection*{6.\ Known issues and next steps}
-\textbf{Current issues.} (1)~Hyperparameters may need tuning. (2)~Default negative sampling: \textbf{custom} hard-negative mining (PyTorch) $+$ ablations are the \textbf{next} main deliverable after baselines. (3)~GNN (e.g.\ R-GCN~\citep{schlichtkrull2018modeling}): \textbf{optional} stretch goal.
+\textbf{Current issues.} (1)~Final hyperparameters may need tuning after full runs complete. (2)~Negative sampling is currently default uniform/Bernoulli via PyKEEN; \textbf{custom} hard negative mining (self-adversarial or frequency-weighted, implemented as standalone \textbf{PyTorch} code) is the central group contribution and is planned for Milestone~2. (3)~Slice evaluation and error analysis are not yet automated.
 
-\textbf{Milestone~2+ plan.} (a)~Custom negatives vs.\ default. (b)~Relation- and degree-\textbf{slices} $+$ short \textbf{error} study. (c)~Optional: $d$ or epoch budget. (d)~Optional GNN on same split. (e)~Compute vs.\ accuracy. One script per experiment; optional notebook for plots.
+\textbf{Milestone~2 and project plan.} (a)~\textbf{Custom hard negative mining}: implement self-adversarial sampling~\citep{sun2019rotate} in standalone PyTorch and ablate against the Bernoulli baseline. (b)~Relation- and degree-\textbf{slice} metrics to directly answer the central question about structural patterns. (c)~\textbf{Error analysis}: sample successes and failures by relation type (symmetric, compositional, inverse) and entity degree. (d)~\textbf{Ablation} on embedding dimension $d$ and training budget as a compute-vs.-accuracy trade-off. (e)~Short discussion of wall-clock time and practical trade-offs. Code organisation: one script per experiment family; one notebook for consolidated tables and plots.
 
 \paragraph{Milestone~1 deliverables checklist.} \checkmark\ Data available via PyKEEN; \checkmark\ ID mappings; \checkmark\ baseline \textbf{model + architecture + loss + optim + budget} documented; \checkmark\ skeleton + runnable training script; \checkmark\ preliminary \textbf{results} (fill TBD) and curve placeholders; \checkmark\ this report; $\square$\ \textbf{fill in} actual metrics and GPU time before upload.
 

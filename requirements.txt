@@ -1,3 +1,4 @@
 # Minimal stack for M1 KGE baselines
 torch>=2.0
 pykeen>=1.10
+matplotlib>=3.7

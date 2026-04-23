@@ -1,2 +1,3 @@
 feedbacks/
-guidelines/
+guidelines/.venv/
+.venv/
