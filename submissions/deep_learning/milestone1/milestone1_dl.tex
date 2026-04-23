@@ -16,18 +16,18 @@
 
 \title{FB15k-237 Link Prediction: Baseline Training and Preliminary Experiments}
 \author{\kteam}
-\date{Project 425282 --- Report for Milestone 1 (Deep Learning)}
+\date{Project 425282 - Report for Milestone 1 (Deep Learning)}
 
 \begin{document}
 \maketitle
 \thispagestyle{empty}
 \vspace{-0.6em}
 \begin{abstract}
-We build the multi-relational \textbf{FB15k-237} graph, train classical knowledge graph embedding baselines \textbf{TransE} and \textbf{RotatE} with the same splits and \textbf{filtered} ranking protocol, and report preliminary \textbf{MRR / Hits@k} with training curves. This report covers the \textbf{data pipeline}, the \textbf{baseline} setup, \textbf{known issues}, and a plan for the remaining experiments: custom hard negatives, slice metrics, and a small relational GNN, each with ablations. For a shorter topic outline (Milestone~0) see the one-page project proposal. Code: \texttt{code/train\_baseline\_kge.py} in the repository; optional CVPR/NeurIPS template can be swapped in for the final version.
+We build the multi-relational \textbf{FB15k-237} graph, train \textbf{TransE} and \textbf{RotatE} under \textbf{matched} settings and \textbf{filtered} ranking, and report preliminary \textbf{MRR / Hits@k} and training curves. Next work centers on \textbf{custom hard-negative mining} (PyTorch) and \textbf{relation-wise} / error analysis; a \textbf{GNN} is \textbf{optional} for the final project if time allows. Code: \texttt{code/train\_baseline\_kge.py}. See Milestone~0 topic proposal: \texttt{milestone0\_dl/topic\_proposal.tex}.
 \end{abstract}
 
 \subsection*{1.\ Introduction and plan}
-\emph{Goal:} given training triples $(h,r,t)$ in a knowledge graph, rank the correct missing entity for queries $(h,r,?)$ and $(?,r,t)$. We compare \textsc{TransE} to the stronger \textsc{RotatE}~\citep{sun2019rotate} on \textbf{identical} train/val/test partitions and the same \textbf{filtered} evaluation (true triples in any split are not treated as false tails/heads) per~\citet{bordes2013translating}. The overall scientific question (post feedback) is: \emph{where} improvements appear---aggregate vs.\ relation- or degree-specific regimes---and whether later \textbf{custom} negative mining and a \textbf{GNN} change that picture. Milestone~1 must show \textbf{data ready}, a \textbf{baseline} running end-to-end, \textbf{preliminary} metrics and curves, and a clear \textbf{next-step} plan.
+\emph{Goal:} given training triples $(h,r,t)$ in a knowledge graph, rank the correct missing entity for queries $(h,r,?)$ and $(?,r,t)$. We compare \textsc{TransE} to the stronger \textsc{RotatE}~\citep{sun2019rotate} on \textbf{identical} train/val/test partitions and the same \textbf{filtered} evaluation (true triples in any split are not treated as false tails/heads) per~\citet{bordes2013translating}. The question is: \emph{where} \textsc{RotatE} gains over \textsc{TransE} (aggregate vs.\ relation/degree slices), and later whether \textbf{custom} hard negatives change that picture vs.\ default sampling. Milestone~1: \textbf{data ready}, \textbf{baseline} end-to-end, \textbf{preliminary} metrics/curves, and a \textbf{plan} for hard negatives + slices (GNN only if time).
 
 \subsection*{2.\ Problem statement, dataset, and evaluation}
 \textbf{Dataset.} \textbf{FB15k-237:} 14,541 entities, 237 relations, 272,115 / 17,535 / 20,466 train, validation, and test triples (official split)~\citep{sun2019rotate}. The graph is $\mathcal{G}=(\mathcal{E},\mathcal{R},\mathcal{T})$, $\mathcal{T}\subseteq\mathcal{E}\times\mathcal{R}\times\mathcal{E}$. No extra subsampling.
@@ -68,7 +68,7 @@ The script writes \texttt{artifacts/baseline/<Model>\_summary.txt} and a PyKEEN 
 \node[draw,right=of M,align=center] (E) {Filtered\\ranking};
 \path[->] (D) edge (M) (M) edge (E);
 \end{tikzpicture}
-\caption{Baseline KGE data flow for Milestone~1. Later work adds a custom neg.\ sampler, slice evaluation, and a separate GNN pipeline.}
+\caption{Baseline KGE data flow for Milestone~1. Later: custom hard-negative training and slice evaluation; GNN (optional).}
 \label{fig:pipe}
 \end{figure}
 
@@ -100,9 +100,9 @@ RotatE & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} & idem \\
 \end{figure}
 
 \subsection*{6.\ Known issues and next steps}
-\textbf{Current issues.} (1)~Final hyperparameters may need tuning. (2)~Default negative sampling is uniform/Bernoulli: \textbf{custom} hard negative mining (separate \textbf{PyTorch} code) and ablation are planned, not in this deliverable. (3)~GNN (e.g.\ R-GCN~\citep{schlichtkrull2018modeling}) in PyG/DGL is not yet in the same repo path.
+\textbf{Current issues.} (1)~Hyperparameters may need tuning. (2)~Default negative sampling: \textbf{custom} hard-negative mining (PyTorch) $+$ ablations are the \textbf{next} main deliverable after baselines. (3)~GNN (e.g.\ R-GCN~\citep{schlichtkrull2018modeling}): \textbf{optional} stretch goal.
 
-\textbf{Milestone~2 and project plan.} (a)~Relation- and degree-\textbf{slice} metrics. (b)~Error analysis: sample successes/failures by relation. (c)~Ablations: neg.\ sampling, optional $d$ and training budget. (d)~GNN on same split for comparison. (e)~Short discussion of \textbf{compute} vs.\ accuracy. Code organisation: one script per experiment family; one notebook (optional) for tables and plots.
+\textbf{Milestone~2+ plan.} (a)~Custom negatives vs.\ default. (b)~Relation- and degree-\textbf{slices} $+$ short \textbf{error} study. (c)~Optional: $d$ or epoch budget. (d)~Optional GNN on same split. (e)~Compute vs.\ accuracy. One script per experiment; optional notebook for plots.
 
 \paragraph{Milestone~1 deliverables checklist.} \checkmark\ Data available via PyKEEN; \checkmark\ ID mappings; \checkmark\ baseline \textbf{model + architecture + loss + optim + budget} documented; \checkmark\ skeleton + runnable training script; \checkmark\ preliminary \textbf{results} (fill TBD) and curve placeholders; \checkmark\ this report; $\square$\ \textbf{fill in} actual metrics and GPU time before upload.
 
