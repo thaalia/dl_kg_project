@@ -20,7 +20,7 @@
 \setlength{\parskip}{0.32em}
 \setlength{\parindent}{0pt}
 
-\title{\textbf{FB15k-237 Link Prediction:\\Beyond Default KGE---Hard Negatives, GNNs, and Relation-Level Analysis}}
+\title{\textbf{FB15k-237 Link Prediction:\\Matched KGE, Custom Hard Negatives, and Relation-Level Analysis}}
 \author{%
   \begin{tabular}{rl}
     Thalia Delhaise  & student no.\ \textit{66937} \\[0.2em]
@@ -38,7 +38,7 @@
 \vspace{-1.1em}
 
 \textbf{Problem and motivation.}
-A \emph{knowledge graph} collects facts as triples $(h,r,t)$. \emph{Link prediction} scores queries $(h,r,?)$ and $(?,r,t)$ using a learned $f_\theta(h,r,t)\in\mathbb{R}$~\citep{bordes2013translating}. \textbf{Research question:} under \textbf{matched} training conditions on FB15k-237, where do \textbf{\textsc{RotatE} vs.\ \textsc{TransE}} differ in \textbf{filtered} ranking---only in aggregate, or mainly on \textbf{specific relation / degree regimes}? Second, does \textbf{custom hard-negative training} (our PyTorch code) change those gaps vs.\ library default corruption? Third, how does a \textbf{relational GNN} link predictor compare to embedding-only KGE on the same splits? \textbf{What we aim to learn:} not a new SOTA claim, but \textbf{quantified} trade-offs (accuracy vs.\ compute; frequent vs.\ rare relations), and when each modeling choice helps or hurts.
+A \emph{knowledge graph} collects facts as triples $(h,r,t)$. \emph{Link prediction} scores queries $(h,r,?)$ and $(?,r,t)$ using a learned $f_\theta(h,r,t)\in\mathbb{R}$~\citep{bordes2013translating}. \textbf{Research question:} under \textbf{matched} training conditions on FB15k-237, where do \textbf{\textsc{RotatE} vs.\ \textsc{TransE}} differ in \textbf{filtered} ranking---only in aggregate, or mainly on \textbf{specific relation / degree regimes}? Second, does \textbf{custom hard-negative training} (our PyTorch code) change those gaps compared to \textbf{default} library corruption? \textbf{What we aim to learn:} \textbf{quantified} trade-offs (frequent vs.\ rare relations; default vs.\ hard negatives), not a new SOTA. A shallow \textbf{relational GNN} (R-GCN / CompGCN) is \textbf{optional} for the final report if time remains; the core is KGE $+$ custom negatives $+$ \textbf{slice} and \textbf{error} analysis.
 
 \textbf{Pipeline (build the KG, then predict).}
 The project matches both courses in order: \textbf{(1)~Dataset $\rightarrow$ graph.} We use the public \textbf{FB15k-237} benchmark~\citep{sun2019rotate} - released as \textbf{real triple files} (train/validation/test splits). That release is our dataset: thousands of facts about real-world entities. \textbf{Building} the KG means ingesting those triples, mapping strings to entity/relation IDs, forming the edge set $\mathcal{T}$ and the split, and loading the result into PyKEEN~\citep{ali2021pykeen}; we may also export a small RDF or edge-list slice for figures or the KG report. \textbf{(2)~Prediction.} We then train models only on $\mathcal{T}_{\mathrm{train}}$ and evaluate on held-out test triples (next paragraph). We do not invent a private ontology from scratch, but we still \textbf{materialize} the full multi-relational graph the methods run on.
@@ -59,10 +59,10 @@ FB15k-237 counts: \textbf{14{,}541} entities, \textbf{237} relations, \textbf{27
 \textbf{Aggregate:} filtered MRR and Hits@$1$, Hits@$3$, Hits@$10$ (head, tail, then averaged). \textbf{Relation-wise:} same metrics \textbf{sliced} by relation frequency or degree bins (addresses ``only a single number'' risk). \textbf{Qualitative error analysis:} inspect successes/failures and relate them to relation ambiguity, tail/head frequency, or pattern type. \textbf{Conceptual note:} we keep \textbf{filtered} ranking as primary and briefly contrast why raw ranks would be optimistic~\citep{bordes2013translating}. Training/validation curves for all models.
 
 \textbf{Our contribution vs.\ library defaults.}
-PyKEEN gives a fair \textbf{baseline pipeline}; our \textbf{own implementation} (PyTorch / PyG or DGL) covers the \textbf{custom hard-negative} module, optional \textbf{bootstrap} code for CIs, \textbf{slice} evaluation scripts, and the \textbf{GNN} trainer---so the project is not ``only two API calls.''
+PyKEEN gives a fair \textbf{baseline pipeline} (data + default KGE). Our \textbf{own code} (PyTorch) implements the \textbf{custom hard-negative} module, optional \textbf{bootstrap} for CIs, and \textbf{slice} evaluation scripts. The project is not ``only two API calls.''
 
-\textbf{Additional experiments (DL depth).}
-\textbf{(1)~Custom negative sampling.} Learned scorer $g_\phi$ and/or periodic hard-negative mining from current embeddings; \textbf{ablate} against uniform/Bernoulli corruption. \textbf{(2)~Slice + uncertainty.} Relation/degree slices; optional bootstrap CIs on the test query set. \textbf{(3)~GNN track.} Shallow \textsc{R-GCN} or \textsc{CompGCN} link predictor on the \textbf{same} splits (independent of~(1)). \textbf{Final readout:} default KGE vs.\ KGE+custom negatives vs.\ GNN, plus relation-wise tables and a short error discussion.
+\textbf{Additional experiments (DL depth)---priority order.}
+\textbf{(1)~Custom negative sampling.} Learned scorer $g_\phi$ and/or periodic hard-negative mining; \textbf{ablate} against uniform/Bernoulli default. \textbf{(2)~Slice + error analysis.} Relation/degree slices; short qualitative review of failures; optional bootstrap CIs. \textbf{(3)~Optional:} shallow \textsc{R-GCN} or \textsc{CompGCN} on the \textbf{same} splits if schedule allows. \textbf{Main comparison:} default KGE vs.\ KGE with custom negatives, plus relation-wise tables.
 
 \vspace{0.15em}
 \begin{footnotesize}
