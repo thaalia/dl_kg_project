@@ -73,30 +73,28 @@ The script writes \texttt{artifacts/baseline/<Model>\_summary.txt} and a PyKEEN 
 \end{figure}
 
 \subsection*{5.\ Preliminary results and training curves}
-\emph{Fill in after you run the baseline script.} The table and figure below are \textbf{placeholders}; replace with real numbers and plots (PNG/PDF) exported from the training log or TensorBoard/CSV.
 
 \begin{table}[h]
 \centering
 \small
-\caption{Preliminary filtered metrics on the test set (replace with your run).}
+\caption{Preliminary filtered metrics on the test set (15 epochs, $d=128$, Adam, lr=$10^{-3}$, seed=42).}
 \begin{tabular}{@{}lccccc@{}}
 \toprule
 Model & MRR & H@1 & H@3 & H@10 & Notes \\
 \midrule
-TransE & 0.129 & 0.057 & 0.152 & 0.263 & 15 ep., bs=1024, MPS \\
-RotatE & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} & 15 ep., bs=1024, CPU \\
+TransE & 0.129 & 0.057 & 0.152 & 0.263 & 15 ep., bs=1024, MPS (439s) \\
+RotatE & \textbf{0.234} & \textbf{0.159} & \textbf{0.263} & \textbf{0.378} & 15 ep., bs=1024, GPU (169s) \\
 \bottomrule
 \end{tabular}
 \end{table}
 
+RotatE consistently outperforms TransE across all metrics at matched hyperparameters: MRR improves from 0.129 to 0.234 (+81\%), and H@10 from 0.263 to 0.378. Both models were still improving at epoch 15 (no early stopping triggered), suggesting further gains with longer training in Milestone~2. The asymmetry between head prediction (RotatE H@10=0.261) and tail prediction (RotatE H@10=0.494) motivates the planned relation-type slice analysis.
+
 \begin{figure}[h]
 \centering
-\begin{minipage}{0.88\linewidth}
-\centering
-\fbox{\rule{0pt}{1.0cm}\rule{0.92\linewidth}{0.4pt}}\\[0.3em]
-\small Insert training loss and validation MRR vs.\ epoch (e.g.\ from PyKEEN log or CSV).
-\end{minipage}
-\caption{Placeholder for training/validation curves.}
+\includegraphics[width=0.48\linewidth]{../../../artifacts/baseline/TransE_curves.png}
+\includegraphics[width=0.48\linewidth]{../../../artifacts/baseline/RotatE_curves.png}
+\caption{Training loss and validation MRR vs.\ epoch for TransE (left, MPS) and RotatE (right, GPU). Both models continue to improve at epoch 15, motivating longer runs in Milestone~2.}
 \end{figure}
 
 \subsection*{6.\ Known issues and next steps}
@@ -104,7 +102,7 @@ RotatE & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} & 15 ep., bs=
 
 \textbf{Milestone~2 and project plan.} (a)~\textbf{Custom hard negative mining}: implement self-adversarial sampling~\citep{sun2019rotate} in standalone PyTorch and ablate against the Bernoulli baseline. (b)~Relation- and degree-\textbf{slice} metrics to directly answer the central question about structural patterns. (c)~\textbf{Error analysis}: sample successes and failures by relation type (symmetric, compositional, inverse) and entity degree. (d)~\textbf{Ablation} on embedding dimension $d$ and training budget as a compute-vs.-accuracy trade-off. (e)~Short discussion of wall-clock time and practical trade-offs. Code organisation: one script per experiment family; one notebook for consolidated tables and plots.
 
-\paragraph{Milestone~1 deliverables checklist.} \checkmark\ Data available via PyKEEN; \checkmark\ ID mappings; \checkmark\ baseline \textbf{model + architecture + loss + optim + budget} documented; \checkmark\ skeleton + runnable training script; \checkmark\ preliminary \textbf{results} (fill TBD) and curve placeholders; \checkmark\ this report; $\square$\ \textbf{fill in} actual metrics and GPU time before upload.
+\paragraph{Milestone~1 deliverables checklist.} \checkmark\ Data available via PyKEEN; \checkmark\ ID mappings; \checkmark\ baseline \textbf{model + architecture + loss + optim + budget} documented; \checkmark\ skeleton + runnable training script; \checkmark\ preliminary \textbf{results} and training curves; \checkmark\ this report.
 
 \paragraph{Code repository.} Baseline training: \texttt{code/train\_baseline\_kge.py}. Unify with KG course: same dataset and protocol.
 
