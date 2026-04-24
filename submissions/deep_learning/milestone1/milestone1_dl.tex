@@ -54,7 +54,7 @@ We start with two classical models with fixed scoring: \textsc{TransE} and \text
 \textbf{Optimiser} & Adam ($\beta_1=0.9$, $\beta_2=0.999$); LR $10^{-3}$. \\
 \textbf{Hyperparam.} & $d=128$; up to 15 epochs (preliminary); \texttt{batch\_size}=1024; LR $10^{-3}$; early stop if val MRR flat 3 epochs. Full runs with 50 epochs and patience 10 are planned for Milestone~2. \\
 \textbf{Seed / env.} & \texttt{random\_seed=42}; Python~3, PyTorch, PyKEEN; GPU optional. \\
-\textbf{Time budget} & TransE: MPS (Apple M-series); RotatE: CPU (MPS lacks complex-norm support). \\
+\textbf{Time budget} & TransE: MPS in our run (Apple M-series). RotatE: CUDA in our run; MPS is unavailable for RotatE's complex ops (CPU if no GPU). \\
 \end{tabular}
 \normalsize
 
@@ -77,13 +77,13 @@ The script writes \texttt{artifacts/baseline/<Model>\_summary.txt} and a PyKEEN 
 \begin{table}[h]
 \centering
 \small
-\caption{Preliminary filtered metrics on the test set (15 epochs, $d=128$, Adam, lr=$10^{-3}$, seed=42).}
+\caption{Preliminary filtered metrics on the test set (realistic ranking, \texttt{both} averaged; 15 epochs max, early stopping with patience~3 on val~MRR; $d=128$, Adam, lr=$10^{-3}$, seed=42).}
 \begin{tabular}{@{}lccccc@{}}
 \toprule
 Model & MRR & H@1 & H@3 & H@10 & Notes \\
 \midrule
-TransE & 0.129 & 0.057 & 0.152 & 0.263 & 15 ep., bs=1024, MPS (439s) \\
-RotatE & \textbf{0.234} & \textbf{0.159} & \textbf{0.263} & \textbf{0.378} & 15 ep., bs=1024, GPU (169s) \\
+TransE & 0.129 & 0.057 & 0.152 & 0.263 & 15 ep.\ max, bs=1024, MPS (439s train+eval) \\
+RotatE & \textbf{0.234} & \textbf{0.159} & \textbf{0.263} & \textbf{0.378} & 15 ep.\ max, bs=1024, CUDA (169s train+eval) \\
 \bottomrule
 \end{tabular}
 \end{table}

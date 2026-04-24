@@ -65,20 +65,20 @@ Our \textbf{contribution} is: reproducible KGE baselines; \textbf{own PyTorch} c
 \subsection*{4.\ Planned experiments and preliminary results}
 \paragraph{Planned.} (1)~TransE/RotatE; \textbf{match} $d$ and budget. (2)~Custom negative ablations. (3)~Slice $+$ error analysis. (4)~Optional GNN. (5)~Time/hardware.
 
-\paragraph{Preliminary (Milestone~1; update before submission).} Baseline KGE is running via a small script; \textbf{numeric} test metrics and learning curves are \textbf{to be inserted} from the same run the DL milestone uses. Table~\ref{tab:prel} is a \textbf{placeholder.}
+\paragraph{Preliminary (Milestone~1).} We use the same training script and protocol as the Deep Learning M1 report (\texttt{code/train\_baseline\_kge.py}): $d=128$, batch 1024, Adam lr $10^{-3}$, up to 15 epochs with early stopping (patience 3) on validation MRR. Test metrics in Table~\ref{tab:prel} are aligned with that report; PyKEEN reports \textbf{realistic} filtered ranking, head and tail prediction averaged (\texttt{both} in PyKEEN's evaluation).
 
 \begin{table}[h]
 \centering
 \small
-\caption{Preliminary or planned aggregate results (fill after first training run).}
+\caption{Preliminary aggregate test results, FB15k-237 (same numbers as DL Milestone~1; realistic filtered MRR / H@10, \texttt{both}).}
 \label{tab:prel}
 \begin{tabular}{@{}lcc@{}}
 \toprule
 Setting & MRR (filtered) & Hits@10 (filtered) \\
 \midrule
-TransE        & TBD & TBD \\
-RotatE        & TBD & TBD \\
-GNN (optional)  & -- & -- \\
+TransE        & 0.129 & 0.263 \\
+RotatE        & 0.234 & 0.378 \\
+GNN (optional)  & --- & --- \\
 \bottomrule
 \end{tabular}
 \end{table}

@@ -17,15 +17,12 @@
 ## C) Run baselines (produces console metrics + artifacts/baseline/)
   conda activate kgdl
   cd /home/thalia/Documents/dl_kg_project
-  python code/train_baseline_kge.py --model TransE  --epochs 3
-  python code/train_baseline_kge.py --model RotatE --epochs 3
+  # Defaults: 15 epochs (max), batch 1024, d=128, early stopping patience 3 — see code/train_baseline_kge.py
+  python code/train_baseline_kge.py --model TransE
+  python code/train_baseline_kge.py --model RotatE
 
-## D) Fill reports (edit .tex) then recompile
-  1) submissions/deep_learning/milestone1/milestone1_dl.tex
-     - Replace TBD in table, add real curve (or keep placeholder if really tight on time)
-     - Fill wall-clock if you have a line for it
-  2) submissions/knowledge_graphs/d2/kg_report_d2.tex
-     - Set same preliminary numbers as DL (or "same as DL M1, date ...")
+## D) Recompile reports (after editing .tex, or after re-running with new hyperparameters)
+  Tables in milestone1_dl / kg_report_d2 should match artifacts/baseline/*_summary.txt for your run.
 
   Rebuild both PDFs:
   bash /home/thalia/Documents/dl_kg_project/submissions/compile.sh
