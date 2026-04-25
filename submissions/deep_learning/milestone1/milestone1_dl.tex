@@ -39,10 +39,11 @@ We build the multi-relational \textbf{FB15k-237} graph, train classical knowledg
 \subsection*{3.\ Data pipeline and preprocessing}
 \textbf{Download.} The benchmark is loaded via \textbf{PyKEEN}~\citep{ali2021pykeen} (dataset name \texttt{fb15k237}, cached locally on first use). The library maps each entity and relation to integer IDs and materializes a \texttt{TriplesFactory} for train, validation, and test.
 
-\textbf{Check.} We verify triple counts and disjointness of test from train. The training script computes and logs dataset \textbf{statistics}: relation-frequency histogram and entity \textbf{in-/out-degree} distribution (saved to \texttt{artifacts/baseline/dataset\_stats.json}). Milestone~2 will include explicit examples of one-to-one, one-to-many, many-to-one, and many-to-many relation patterns as direct motivation for the slice evaluation and error analysis.
+\textbf{Check.} We verify triple counts and disjointness of test from train. The training script computes and logs dataset \textbf{statistics}: relation-frequency histogram and entity \textbf{in-/out-degree} distribution 
+(saved to \texttt{artifacts/baseline/dataset\_stats.json}). Milestone~2 will include explicit examples of one-to-one, one-to-many, many-to-one, and many-to-many relation patterns as direct motivation for the slice evaluation and error analysis.
 
 \subsection*{4.\ Baseline models and training setup (PyKEEN)}
-We start with two classical models with fixed scoring: \textsc{TransE} and \textsc{RotatE}~\citep{sun2019rotate}. The rest of this section is the \textbf{configuration we actually run} (edit \texttt{train\_baseline\_kge.py} if you change it).
+We start with two classical models with fixed scoring: \textsc{TransE} and \textsc{RotatE}~\citep{sun2019rotate}. The rest of this section is the \textbf{configuration we actually run}.
 
 \noindent\small
 \begin{tabular}{@{}p{0.22\linewidth}p{0.72\linewidth}@{}}
@@ -53,12 +54,12 @@ We start with two classical models with fixed scoring: \textsc{TransE} and \text
 \textbf{Loss} & Margin / pairwise ranking (default per model in PyKEEN). \\
 \textbf{Optimiser} & Adam ($\beta_1=0.9$, $\beta_2=0.999$); LR $10^{-3}$. \\
 \textbf{Hyperparam.} & $d=128$; up to 15 epochs (preliminary); \texttt{batch\_size}=1024; LR $10^{-3}$; early stop if val MRR flat 3 epochs. Full runs with 50 epochs and patience 10 are planned for Milestone~2. \\
-\textbf{Seed / env.} & \texttt{random\_seed=42}; Python~3, PyTorch, PyKEEN; GPU optional. \\
-\textbf{Time budget} & TransE: MPS in our run (Apple M-series). RotatE: CUDA in our run; MPS is unavailable for RotatE's complex ops (CPU if no GPU). \\
+\textbf{Seed / env.} & \texttt{random\_seed=42}; Python~3, PyTorch, PyKEEN; \\
+\textbf{Time budget} & TransE: CUDA in our run. RotatE: CUDA in our run. \\
 \end{tabular}
 \normalsize
 
-The script writes \texttt{artifacts/baseline/<Model>\_summary.txt} and a PyKEEN result folder; copy key metrics and loss curves from the run into the table and figure above.
+The script writes \texttt{artifacts/baseline/<Model>\_summary.txt} and a PyKEEN result folder.
 
 \begin{figure}[h]
 \centering
@@ -82,29 +83,25 @@ The script writes \texttt{artifacts/baseline/<Model>\_summary.txt} and a PyKEEN 
 \toprule
 Model & MRR & H@1 & H@3 & H@10 & Notes \\
 \midrule
-TransE & 0.129 & 0.057 & 0.152 & 0.263 & 15 ep.\ max, bs=1024, MPS (439s train+eval) \\
-RotatE & \textbf{0.234} & \textbf{0.159} & \textbf{0.263} & \textbf{0.378} & 15 ep.\ max, bs=1024, CUDA (169s train+eval) \\
+TransE & 0.128 & 0.055 & 0.151 & 0.264 & 15 ep.\ max, bs=1024, CUDA \\
+RotatE & \textbf{0.234} & \textbf{0.159} & \textbf{0.263} & \textbf{0.378} & 15 ep.\ max, bs=1024, CUDA \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-RotatE consistently outperforms TransE across all metrics at matched hyperparameters: MRR improves from 0.129 to 0.234 (+81\%), and H@10 from 0.263 to 0.378. Both models were still improving at epoch 15 (no early stopping triggered), suggesting further gains with longer training in Milestone~2. The asymmetry between head prediction (RotatE H@10=0.261) and tail prediction (RotatE H@10=0.494) motivates the planned relation-type slice analysis.
+RotatE consistently outperforms TransE across all metrics at matched hyperparameters: MRR improves from 0.128 to 0.234 (+83\%), and H@10 from 0.264 to 0.378. Both models were still improving at epoch 15 (no early stopping triggered), suggesting further gains with longer training in Milestone~2. The asymmetry between head prediction (RotatE H@10=0.261) and tail prediction (RotatE H@10=0.494) motivates the planned relation-type slice analysis.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.48\linewidth]{../../../artifacts/baseline/TransE_curves.png}
 \includegraphics[width=0.48\linewidth]{../../../artifacts/baseline/RotatE_curves.png}
-\caption{Training loss and validation MRR vs.\ epoch for TransE (left, MPS) and RotatE (right, GPU). Both models continue to improve at epoch 15, motivating longer runs in Milestone~2.}
+\caption{Training loss and validation MRR vs.\ epoch for TransE (left, CUDA) and RotatE (right, CUDA). Both models continue to improve at epoch 15, motivating longer runs in Milestone~2.}
 \end{figure}
 
 \subsection*{6.\ Known issues and next steps}
-\textbf{Current issues.} (1)~Final hyperparameters may need tuning after full runs complete. (2)~Negative sampling is currently default uniform/Bernoulli via PyKEEN; \textbf{custom} hard negative mining (self-adversarial or frequency-weighted, implemented as standalone \textbf{PyTorch} code) is the central group contribution and is planned for Milestone~2. (3)~Slice evaluation and error analysis are not yet automated.
+\textbf{Current issues.} (1)~Final hyperparameters may need tuning after full runs complete. (2)~Negative sampling is currently default uniform/Bernoulli via PyKEEN; \textbf{custom} hard negative mining (self-adversarial or frequency-weighted) is the central group contribution and is planned for Milestone~2. (3)~Slice evaluation and error analysis are not yet automated.
 
-\textbf{Milestone~2 and project plan.} (a)~\textbf{Custom hard negative mining}: implement self-adversarial sampling~\citep{sun2019rotate} in standalone PyTorch and ablate against the Bernoulli baseline. (b)~Relation- and degree-\textbf{slice} metrics to directly answer the central question about structural patterns. (c)~\textbf{Error analysis}: sample successes and failures by relation type (symmetric, compositional, inverse) and entity degree. (d)~\textbf{Ablation} on embedding dimension $d$ and training budget as a compute-vs.-accuracy trade-off. (e)~Short discussion of wall-clock time and practical trade-offs. Code organisation: one script per experiment family; one notebook for consolidated tables and plots.
-
-\paragraph{Milestone~1 deliverables checklist.} \checkmark\ Data available via PyKEEN; \checkmark\ ID mappings; \checkmark\ baseline \textbf{model + architecture + loss + optim + budget} documented; \checkmark\ skeleton + runnable training script; \checkmark\ preliminary \textbf{results} and training curves; \checkmark\ this report.
-
-\paragraph{Code repository.} Baseline training: \texttt{code/train\_baseline\_kge.py}. Unify with KG course: same dataset and protocol.
+\textbf{Milestone~2 and project plan.} (a)~\textbf{Custom hard negative mining}: implement self-adversarial sampling~\citep{sun2019rotate} and ablate against the Bernoulli baseline. (b)~Relation- and degree-\textbf{slice} metrics to directly answer the central question about structural patterns. (c)~\textbf{Error analysis}: sample successes and failures by relation type (symmetric, compositional, inverse) and entity degree. (d)~\textbf{Ablation} on embedding dimension $d$ and training budget as a compute-vs.-accuracy trade-off. (e)~Short discussion of elapsed real time and practical trade-offs.
 
 \footnotesize
 \bibliographystyle{plainnat}
