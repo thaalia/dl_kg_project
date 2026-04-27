@@ -42,7 +42,7 @@ Our \textbf{contribution} is: reproducible KGE baselines; \textbf{own PyTorch} c
 \subsection*{3.\ Methodology}
 \paragraph{Phase A --- Classical KGE (Milestone~1--2).} We implement \textsc{TransE} and \textsc{RotatE}~\citep{sun2019rotate} with PyKEEN for a fair \textbf{first} line: same splits, $d$, optimiser, training budget, and \textbf{filtered} evaluation. The scoring function is learned; training uses margin/ranking loss and negative sampling.
 
-\paragraph{Phase B --- Custom negative mining (in-house PyTorch).} In parallel with KGE, we will implement a \textbf{learnt or scheduled hard-negative} mechanism: e.g.\ a small $g_\phi$ over a subset of corruptions, or periodic \textbf{mining} in embedding space, with ablations \textbf{against} uniform and Bernoulli \textbf{defaults.}
+\paragraph{Phase B --- Custom negative mining.} In parallel with KGE, we will implement a \textbf{learnt or scheduled hard-negative} mechanism: e.g.\ a small $g_\phi$ over a subset of corruptions, or periodic \textbf{mining} in embedding space, with ablations \textbf{against} uniform and Bernoulli \textbf{defaults.}
 
 \paragraph{Phase C (optional) --- Relational GNN.} If time allows, a shallow \textsc{R-GCN} (or \textsc{CompGCN}) in PyG/DGL~\citep{schlichtkrull2018modeling} on the \textbf{same} task and splits; not required for the main thesis (hard negatives $+$ KGE $+$ analysis).
 
