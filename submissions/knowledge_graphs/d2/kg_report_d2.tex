@@ -37,16 +37,16 @@ Our \textbf{contribution} is: reproducible KGE baselines; \textbf{own PyTorch} c
 
 \textbf{Task.} \textbf{Link prediction:} for each test triple, rank the correct head or tail under the \textbf{filtered} setting~\citep{bordes2013translating} (candidates that complete a \emph{known} triple in train, val, or test are not errors).
 
-\textbf{Success criteria.} (1)~Strong \textbf{aggregate} filtered MRR and Hits@1,3,10. (2)~Ablations on \textbf{negative} strategies. (3)~Deeper \textbf{relation-wise} and \textbf{degree} analysis and short error study. (4)~\textbf{Optional:} a GNN baseline. We do not claim SOTA; we care \textbf{where} each setting helps or fails.
+\textbf{Success criteria.} (1)~Strong \textbf{aggregate} filtered MRR and Hits@1,3,10. (2)~Ablations on \textbf{negative} strategies. (3)~Deeper \textbf{relation-wise} and \textbf{degree} analysis and short error study. (4)~\textbf{Optional:} a GNN baseline.
 
 \subsection*{3.\ Methodology}
-\paragraph{Phase A --- Classical KGE (Milestone~1--2).} We implement \textsc{TransE} and \textsc{RotatE}~\citep{sun2019rotate} with PyKEEN for a fair \textbf{first} line: same splits, $d$, optimiser, training budget, and \textbf{filtered} evaluation. The scoring function is learned; training uses margin/ranking loss and negative sampling. This serves as a \textbf{baseline} for the Deep Learning report.
+\paragraph{Phase A --- Classical KGE (Milestone~1--2).} We implement \textsc{TransE} and \textsc{RotatE}~\citep{sun2019rotate} with PyKEEN for a fair \textbf{first} line: same splits, $d$, optimiser, training budget, and \textbf{filtered} evaluation. The scoring function is learned; training uses margin/ranking loss and negative sampling.
 
-\paragraph{Phase B --- Custom negative mining (in-house PyTorch).} In parallel with KGE, we will implement a \textbf{learnt or scheduled hard-negative} mechanism: e.g.\ a small $g_\phi$ over a subset of corruptions, or periodic \textbf{mining} in embedding space, with ablations \textbf{against} uniform and Bernoulli \textbf{defaults.} This addresses the “not only default PyKEEN” feedback.
+\paragraph{Phase B --- Custom negative mining (in-house PyTorch).} In parallel with KGE, we will implement a \textbf{learnt or scheduled hard-negative} mechanism: e.g.\ a small $g_\phi$ over a subset of corruptions, or periodic \textbf{mining} in embedding space, with ablations \textbf{against} uniform and Bernoulli \textbf{defaults.}
 
 \paragraph{Phase C (optional) --- Relational GNN.} If time allows, a shallow \textsc{R-GCN} (or \textsc{CompGCN}) in PyG/DGL~\citep{schlichtkrull2018modeling} on the \textbf{same} task and splits; not required for the main thesis (hard negatives $+$ KGE $+$ analysis).
 
-\paragraph{Evaluation.} In addition to global MRR and Hits@$k$, we will report \textbf{slices} (relation frequency, entity degree) and a short \textbf{error} / case study. Optional bootstrap confidence bands on the test set.
+\paragraph{Evaluation.} In addition to global MRR and Hits@$k$, we will report \textbf{slices} (relation frequency, entity degree) and a short \textbf{error} / case study.
 
 \begin{figure}[h]
 \centering
@@ -58,33 +58,37 @@ Our \textbf{contribution} is: reproducible KGE baselines; \textbf{own PyTorch} c
 \path[->] (data) edge (kge) (kge) edge (neg);
 \path[->] (kge.south) -| (slice.north);
 \end{tikzpicture}
-\caption{Core pipeline: same filtered evaluation; custom negatives and analysis on the KGE line. GNN (not shown) is optional for later.}
+\caption{Core pipeline: same filtered evaluation; custom negatives and analysis on the KGE line.}
 \label{fig:method-kg}
 \end{figure}
 
 \subsection*{4.\ Planned experiments and preliminary results}
 \paragraph{Planned.} (1)~TransE/RotatE; \textbf{match} $d$ and budget. (2)~Custom negative ablations. (3)~Slice $+$ error analysis. (4)~Optional GNN. (5)~Time/hardware.
 
-\paragraph{Preliminary (Milestone~1).} We use the same training script and protocol as the Deep Learning M1 report (\texttt{code/train\_baseline\_kge.py}): $d=128$, batch 1024, Adam lr $10^{-3}$, up to 15 epochs with early stopping (patience 3) on validation MRR. Test metrics in Table~\ref{tab:prel} are aligned with that report; PyKEEN reports \textbf{realistic} filtered ranking, head and tail prediction averaged (\texttt{both} in PyKEEN's evaluation).
+\paragraph{Preliminary (Milestone~1).} We use a custom training script (\texttt{code/train\_baseline\_kge.py}), running on CUDA: $d=128$, batch 1024, Adam lr $10^{-3}$, up to 15 epochs with early stopping (patience 3) on validation MRR. PyKEEN reports \textbf{realistic} filtered ranking, head and tail prediction averaged.
 
 \begin{table}[h]
 \centering
 \small
-\caption{Preliminary aggregate test results, FB15k-237 (same numbers as DL Milestone~1; realistic filtered MRR / H@10, \texttt{both}).}
-\label{tab:prel}
-\begin{tabular}{@{}lcc@{}}
+\caption{Preliminary filtered metrics on the test set (realistic ranking, \texttt{both} averaged; 15 epochs max, early stopping with patience~3 on val~MRR; $d=128$, Adam, lr=$10^{-3}$, seed=42).}
+\begin{tabular}{@{}lccccc@{}}
 \toprule
-Setting & MRR (filtered) & Hits@10 (filtered) \\
+Model & MRR & H@1 & H@3 & H@10 & Notes \\
 \midrule
-TransE        & 0.129 & 0.263 \\
-RotatE        & 0.234 & 0.378 \\
-GNN (optional)  & --- & --- \\
+TransE & 0.128 & 0.055 & 0.151 & 0.264 & 15 ep.\ max, bs=1024, CUDA \\
+RotatE & \textbf{0.234} & \textbf{0.159} & \textbf{0.263} & \textbf{0.378} & 15 ep.\ max, bs=1024, CUDA \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\subsection*{5.\ Acknowledgment of course deliverables (D2 scope)}
-D2 (this document) is the \textbf{first} report slice: \textbf{introduction, problem, methodology, and planned/early results,} to be extended in D3 with full experiments, student contributions, and the Jupyter lab notebook, per RC2526 project text.
+RotatE consistently outperforms TransE across all metrics at matched hyperparameters: MRR improves from 0.128 to 0.234 (+83\%), and H@10 from 0.264 to 0.378. Both models were still improving at epoch 15 (no early stopping triggered), suggesting further gains with longer training in Milestone~2. The asymmetry between head prediction (RotatE H@10=0.261) and tail prediction (RotatE H@10=0.494) motivates the planned relation-type slice analysis.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.48\linewidth]{../../../artifacts/baseline/TransE_curves.png}
+\includegraphics[width=0.48\linewidth]{../../../artifacts/baseline/RotatE_curves.png}
+\caption{Training loss and validation MRR vs.\ epoch for TransE (left, CUDA) and RotatE (right, CUDA). Both models continue to improve at epoch 15, motivating longer runs in Milestone~2.}
+\end{figure}
 
 \footnotesize
 \bibliographystyle{plainnat}
