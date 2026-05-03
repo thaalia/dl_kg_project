@@ -53,13 +53,15 @@ We start with two classical models with fixed scoring: \textsc{TransE} and \text
 \textbf{Negatives} & Corrupt head or tail; Bernoulli as in KGE default practice. \\
 \textbf{Loss} & Margin / pairwise ranking (default per model in PyKEEN). \\
 \textbf{Optimiser} & Adam ($\beta_1=0.9$, $\beta_2=0.999$); LR $10^{-3}$. \\
-\textbf{Hyperparam.} & $d=128$; up to 15 epochs (preliminary); \texttt{batch\_size}=1024; LR $10^{-3}$; early stop if val MRR flat 3 epochs. Full runs with 50 epochs and patience 10 are planned for Milestone~2. \\
+\textbf{Hyperparam.} & \textbf{Full baseline:} $d=128$; up to 50 epochs; \texttt{batch\_size}=512; LR $10^{-3}$; early stop if val MRR flat 10 epochs (\texttt{--full-baseline} or Colab \texttt{LONG\_RUN=True}). \textbf{Table~\ref{tab:baseline_prelim}:} numbers are still the \emph{short-budget} 15-epoch runs (bs 1024, patience 3) in the repo until full Colab/local artifacts are merged. \\
 \textbf{Seed / env.} & \texttt{random\_seed=42}; Python~3, PyTorch, PyKEEN; \\
 \textbf{Time budget} & TransE: CUDA in our run. RotatE: CUDA in our run. \\
 \end{tabular}
 \normalsize
 
-The script writes \texttt{artifacts/baseline/<Model>\_summary.txt} and a PyKEEN result folder.
+The script writes \texttt{artifacts/baseline/<Model>\_summary.txt}, \texttt{ENV\_SNAPSHOT\_<Model>.txt} (with \texttt{--full-baseline}), curves, and a PyKEEN result folder.
+
+\paragraph{Evaluation protocol.} Model selection and early stopping use \textbf{validation} filtered MRR only. We report \textbf{test} MRR and Hits@$k$ once for the final frozen baseline configuration (same setting later used as the reference before hard-negative ablations), to avoid repeated test peeking when many sampling variants are tried.
 
 \begin{figure}[h]
 \centering
@@ -78,7 +80,8 @@ The script writes \texttt{artifacts/baseline/<Model>\_summary.txt} and a PyKEEN 
 \begin{table}[h]
 \centering
 \small
-\caption{Preliminary filtered metrics on the test set (realistic ranking, \texttt{both} averaged; 15 epochs max, early stopping with patience~3 on val~MRR; $d=128$, Adam, lr=$10^{-3}$, seed=42).}
+\caption{Preliminary filtered metrics (realistic \texttt{both}). Short budget: 15 epochs max, bs=1024, patience~3 on val~MRR. Replace after merging full baseline runs (50 ep cap, bs=512, patience~10).}
+\label{tab:baseline_prelim}
 \begin{tabular}{@{}lccccc@{}}
 \toprule
 Model & MRR & H@1 & H@3 & H@10 & Notes \\
@@ -89,7 +92,7 @@ RotatE & \textbf{0.234} & \textbf{0.159} & \textbf{0.263} & \textbf{0.378} & 15 
 \end{tabular}
 \end{table}
 
-RotatE consistently outperforms TransE across all metrics at matched hyperparameters: MRR improves from 0.128 to 0.234 (+83\%), and H@10 from 0.264 to 0.378. Both models were still improving at epoch 15 (no early stopping triggered), suggesting further gains with longer training in Milestone~2. The asymmetry between head prediction (RotatE H@10=0.261) and tail prediction (RotatE H@10=0.494) motivates the planned relation-type slice analysis.
+RotatE consistently outperforms TransE on this preliminary budget: MRR improves from 0.128 to 0.234 (+83\%), and H@10 from 0.264 to 0.378. Both models were still improving at epoch 15 (no early stopping triggered), so full-baseline training is needed for conclusive Milestone~2 comparisons. The asymmetry between head prediction (RotatE H@10=0.261) and tail prediction (RotatE H@10=0.494) motivates relation-type slice analysis.
 
 \begin{figure}[h]
 \centering

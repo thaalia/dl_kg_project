@@ -17,9 +17,30 @@
 ## C) Run baselines (produces console metrics + artifacts/baseline/)
   conda activate kgdl
   cd /home/thalia/Documents/dl_kg_project
-  # Defaults: 15 epochs (max), batch 1024, d=128, early stopping patience 3 — see code/train_baseline_kge.py
+  # Quick smoke test (15 ep, bs 1024, patience 3):
   python code/train_baseline_kge.py --model TransE
   python code/train_baseline_kge.py --model RotatE
+  # Full baseline for M2 (50 ep max, bs 512, patience 10); also writes ENV_SNAPSHOT_<Model>.txt
+  python code/train_baseline_kge.py --full-baseline --model TransE
+  python code/train_baseline_kge.py --full-baseline --model RotatE
+
+## C2) Google Colab (if local GPU is not available)
+  1. Upload the repo or open code/train_baseline_kge_colab.ipynb in Colab (GPU runtime).
+  2. In the notebook, set LONG_RUN = True (default there) and run TransE, then RotatE (or duplicate runtime).
+  3. Download from Colab into the repo (same paths):
+       artifacts/baseline/TransE_summary.txt
+       artifacts/baseline/RotatE_summary.txt
+       artifacts/baseline/TransE_curves.png
+       artifacts/baseline/RotatE_curves.png
+       artifacts/baseline/pykeen_TransE/   (folder)
+       artifacts/baseline/pykeen_RotatE/   (folder)
+       artifacts/baseline/ENV_SNAPSHOT_TransE.txt  (optional: run print-env cell)
+       artifacts/baseline/ENV_SNAPSHOT_RotatE.txt
+  4. Optional: append Colab pip pins —  !pip freeze | grep -iE 'torch|pykeen|matplotlib'  — into those ENV files.
+  5. Evaluation protocol: tune/early-stop on validation MRR only; report test metrics once for the final chosen baseline config (before many hard-negative trials).
+
+## C3) If a teammate already ran full baselines on Colab
+  Ask them for the artifacts above; copy into artifacts/baseline/, then refresh tables in milestone1_dl.tex / kg_report_d2.tex and recompile PDFs.
 
 ## D) Recompile reports (after editing .tex, or after re-running with new hyperparameters)
   Tables in milestone1_dl / kg_report_d2 should match artifacts/baseline/*_summary.txt for your run.

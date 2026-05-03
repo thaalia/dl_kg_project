@@ -1,4 +1,4 @@
-# Minimal stack for M1 KGE baselines
-torch>=2.0
-pykeen>=1.10
-matplotlib>=3.7
+# KGE baselines (keep similar major versions on Colab and local; see ENV_SNAPSHOT_*.txt after --full-baseline).
+torch>=2.0,<3
+pykeen>=1.10,<2
+matplotlib>=3.7,<4

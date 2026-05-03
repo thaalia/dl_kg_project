@@ -7,8 +7,9 @@ Run from repo root:
     python code/train_baseline_kge.py --model TransE
     python code/train_baseline_kge.py --model RotatE
 
-Defaults are tuned for a fast preliminary run (15 epochs, bs=1024, patience=3).
-For full runs: add --epochs 50 --batch_size 512 --patience 10
+Defaults are tuned for a fast run (15 epochs, bs=1024, patience=3).
+For full baseline runs (50 epochs, batch 512, patience 10): use --full-baseline.
+Equivalent: --epochs 50 --batch_size 512 --patience 10
 
 Saves:
     artifacts/baseline/<Model>_summary.txt   -- filtered metrics (MRR, Hits@k)
@@ -21,6 +22,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import platform
 import sys
 from collections import Counter
 from pathlib import Path
@@ -74,6 +76,11 @@ def main() -> int:
 
     p = argparse.ArgumentParser(description="Train TransE or RotatE on FB15k-237.")
     p.add_argument("--model", choices=["TransE", "RotatE"], default="TransE")
+    p.add_argument(
+        "--full-baseline",
+        action="store_true",
+        help="Long training budget: epochs=50, batch_size=512, patience=10.",
+    )
     p.add_argument("--epochs", type=int, default=15,
                    help="Maximum training epochs (early stopping may cut short).")
     p.add_argument("--batch_size", type=int, default=1024)
@@ -85,6 +92,10 @@ def main() -> int:
     p.add_argument("--device", default=None,
                    help="Device override: cpu | cuda | mps. Auto-detected if omitted.")
     args = p.parse_args()
+    if args.full_baseline:
+        args.epochs = 50
+        args.batch_size = 512
+        args.patience = 10
     args.device = args.device or best_device()
     # RotatE uses complex-valued embeddings; MPS lacks complex norm support
     if args.model == "RotatE" and args.device == "mps":
@@ -162,7 +173,35 @@ def main() -> int:
     _save_plots(result, args.model, out_dir)
 
     print(f"\nSummary written to {out_file}")
+
+    if args.full_baseline:
+        env_path = out_dir / f"ENV_SNAPSHOT_{args.model}.txt"
+        _write_env_snapshot(env_path, args)
+        print(f"Environment snapshot written to {env_path}")
+
     return 0
+
+
+def _write_env_snapshot(path: Path, args: argparse.Namespace) -> None:
+    """Record versions and device for reproducibility (full-baseline runs)."""
+    lines = [
+        f"full_baseline=true",
+        f"model={args.model} dim={args.dim} epochs={args.epochs} "
+        f"bs={args.batch_size} lr={args.lr} patience={args.patience} seed={args.seed}",
+        f"device_requested={args.device}",
+        f"platform={platform.platform()}",
+        f"python={platform.python_version()}",
+        f"torch={torch.__version__}",
+        f"torch_cuda_available={torch.cuda.is_available()}",
+    ]
+    if torch.cuda.is_available():
+        lines.append(f"torch_cuda_device_name={torch.cuda.get_device_name(0)}")
+    try:
+        import pykeen as pk
+        lines.append(f"pykeen={pk.__version__}")
+    except Exception:
+        lines.append("pykeen=import_failed")
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def _save_plots(result, model_name: str, out_dir: Path) -> None:

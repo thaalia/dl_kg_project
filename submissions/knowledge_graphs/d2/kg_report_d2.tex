@@ -40,11 +40,11 @@ Our \textbf{contribution} is: reproducible KGE baselines; \textbf{own PyTorch} c
 \textbf{Success criteria.} (1)~Strong \textbf{aggregate} filtered MRR and Hits@1,3,10. (2)~Ablations on \textbf{negative} strategies. (3)~Deeper \textbf{relation-wise} and \textbf{degree} analysis and short error study. (4)~\textbf{Optional:} a GNN baseline.
 
 \subsection*{3.\ Methodology}
-\paragraph{Phase A --- Classical KGE (Milestone~1--2).} We implement \textsc{TransE} and \textsc{RotatE}~\citep{sun2019rotate} with PyKEEN for a fair \textbf{first} line: same splits, $d$, optimiser, training budget, and \textbf{filtered} evaluation. The scoring function is learned; training uses margin/ranking loss and negative sampling.
+\paragraph{Classical KGE (Milestone~1--2).} We implement \textsc{TransE} and \textsc{RotatE}~\citep{sun2019rotate} with PyKEEN for a fair \textbf{first} line: same splits, $d$, optimiser, training budget, and \textbf{filtered} evaluation. The scoring function is learned; training uses margin/ranking loss and negative sampling.
 
-\paragraph{Phase B --- Custom negative mining.} In parallel with KGE, we will implement a \textbf{learnt or scheduled hard-negative} mechanism: e.g.\ a small $g_\phi$ over a subset of corruptions, or periodic \textbf{mining} in embedding space, with ablations \textbf{against} uniform and Bernoulli \textbf{defaults.}
+\paragraph{Custom negative mining.} In parallel with KGE, we will implement a \textbf{learnt or scheduled hard-negative} mechanism: e.g.\ a small $g_\phi$ over a subset of corruptions, or periodic \textbf{mining} in embedding space, with ablations \textbf{against} uniform and Bernoulli \textbf{defaults.}
 
-\paragraph{Phase C (optional) --- Relational GNN.} If time allows, a shallow \textsc{R-GCN} (or \textsc{CompGCN}) in PyG/DGL~\citep{schlichtkrull2018modeling} on the \textbf{same} task and splits; not required for the main thesis (hard negatives $+$ KGE $+$ analysis).
+\paragraph{Optional: relational GNN.} If time allows, a shallow \textsc{R-GCN} (or \textsc{CompGCN}) in PyG/DGL~\citep{schlichtkrull2018modeling} on the \textbf{same} task and splits; not required for the main thesis (hard negatives $+$ KGE $+$ analysis).
 
 \paragraph{Evaluation.} In addition to global MRR and Hits@$k$, we will report \textbf{slices} (relation frequency, entity degree) and a short \textbf{error} / case study.
 
@@ -65,12 +65,15 @@ Our \textbf{contribution} is: reproducible KGE baselines; \textbf{own PyTorch} c
 \subsection*{4.\ Planned experiments and preliminary results}
 \paragraph{Planned.} (1)~TransE/RotatE; \textbf{match} $d$ and budget. (2)~Custom negative ablations. (3)~Slice $+$ error analysis. (4)~Optional GNN. (5)~Time/hardware.
 
-\paragraph{Preliminary (Milestone~1).} We use a custom training script (\texttt{code/train\_baseline\_kge.py}), running on CUDA: $d=128$, batch 1024, Adam lr $10^{-3}$, up to 15 epochs with early stopping (patience 3) on validation MRR. PyKEEN reports \textbf{realistic} filtered ranking, head and tail prediction averaged.
+\paragraph{Preliminary (Milestone~1).} We use \texttt{code/train\_baseline\_kge.py} (or the Colab notebook). For Milestone~2 we target full baseline runs: $d=128$, batch 512, up to 50 epochs, early stopping with patience 10 on validation MRR (\texttt{--full-baseline} or \texttt{LONG\_RUN=True} in the notebook). PyKEEN reports \textbf{realistic} filtered ranking, head and tail prediction averaged.
+
+\paragraph{Test protocol.} Hyperparameters and stopping rely on \textbf{validation} MRR only; \textbf{test} metrics are reported once for the frozen baseline configuration used as reference before hard-negative experiments.
 
 \begin{table}[h]
 \centering
 \small
-\caption{Preliminary filtered metrics on the test set (realistic ranking, \texttt{both} averaged; 15 epochs max, early stopping with patience~3 on val~MRR; $d=128$, Adam, lr=$10^{-3}$, seed=42).}
+\caption{Preliminary filtered metrics (realistic \texttt{both}). Short budget: 15 epochs max, bs=1024, patience~3. Replace with full baseline numbers (50 ep cap, bs=512, patience~10) once Colab/local artifacts are merged.}
+\label{tab:baseline_prelim_kg}
 \begin{tabular}{@{}lccccc@{}}
 \toprule
 Model & MRR & H@1 & H@3 & H@10 & Notes \\
@@ -81,7 +84,7 @@ RotatE & \textbf{0.234} & \textbf{0.159} & \textbf{0.263} & \textbf{0.378} & 15 
 \end{tabular}
 \end{table}
 
-RotatE consistently outperforms TransE across all metrics at matched hyperparameters: MRR improves from 0.128 to 0.234 (+83\%), and H@10 from 0.264 to 0.378. Both models were still improving at epoch 15 (no early stopping triggered), suggesting further gains with longer training in Milestone~2. The asymmetry between head prediction (RotatE H@10=0.261) and tail prediction (RotatE H@10=0.494) motivates the planned relation-type slice analysis.
+RotatE consistently outperforms TransE on this preliminary budget: MRR improves from 0.128 to 0.234 (+83\%), and H@10 from 0.264 to 0.378. Both models were still improving at epoch 15 (no early stopping triggered), so longer full-baseline runs should replace Table~\ref{tab:baseline_prelim_kg} for conclusive comparisons. The head vs.\ tail gap (RotatE H@10: 0.261 vs.\ 0.494) motivates relation-type slice analysis.
 
 \begin{figure}[h]
 \centering
