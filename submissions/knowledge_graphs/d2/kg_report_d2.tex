@@ -65,29 +65,29 @@ Our \textbf{contribution} is: reproducible KGE baselines; \textbf{own PyTorch} c
 \subsection*{4.\ Planned experiments and preliminary results}
 \paragraph{Planned.} (1)~TransE/RotatE; \textbf{match} $d$ and budget. (2)~Custom negative ablations. (3)~Slice $+$ error analysis. (4)~Optional GNN. (5)~Time/hardware.
 
-\paragraph{Preliminary (Milestone~1).} We use a custom training script (\texttt{code/train\_baseline\_kge.py}), running on CUDA: $d=128$, batch 1024, Adam lr $10^{-3}$, up to 15 epochs with early stopping (patience 3) on validation MRR. PyKEEN reports \textbf{realistic} filtered ranking, head and tail prediction averaged.
+\paragraph{Baseline results.} We use a custom training script (\texttt{code/train\_baseline\_kge.py}), running on CUDA: $d=128$, batch 1024, Adam lr $10^{-3}$, up to 50 epochs with early stopping (patience 10) on validation MRR. PyKEEN reports \textbf{realistic} filtered ranking, head and tail prediction averaged. Artifacts: \texttt{artifacts/baseline/}.
 
 \begin{table}[h]
 \centering
 \small
-\caption{Preliminary filtered metrics on the test set (realistic ranking, \texttt{both} averaged; 15 epochs max, early stopping with patience~3 on val~MRR; $d=128$, Adam, lr=$10^{-3}$, seed=42).}
+\caption{Filtered metrics on the test set (realistic ranking, \texttt{both} averaged; 50 epochs max, early stopping with patience~10 on val~MRR; $d=128$, Adam, lr=$10^{-3}$, seed=42).}
 \begin{tabular}{@{}lccccc@{}}
 \toprule
 Model & MRR & H@1 & H@3 & H@10 & Notes \\
 \midrule
-TransE & 0.128 & 0.055 & 0.151 & 0.264 & 15 ep.\ max, bs=1024, CUDA \\
-RotatE & \textbf{0.234} & \textbf{0.159} & \textbf{0.263} & \textbf{0.378} & 15 ep.\ max, bs=1024, CUDA \\
+TransE & 0.152 & 0.073 & 0.174 & 0.304 & 50 ep.\ max, bs=1024, CUDA \\
+RotatE & \textbf{0.261} & \textbf{0.179} & \textbf{0.286} & \textbf{0.424} & 50 ep.\ max, bs=1024, CUDA \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-RotatE consistently outperforms TransE across all metrics at matched hyperparameters: MRR improves from 0.128 to 0.234 (+83\%), and H@10 from 0.264 to 0.378. Both models were still improving at epoch 15 (no early stopping triggered), suggesting further gains with longer training in Milestone~2. The asymmetry between head prediction (RotatE H@10=0.261) and tail prediction (RotatE H@10=0.494) motivates the planned relation-type slice analysis.
+RotatE consistently outperforms TransE across all metrics at matched hyperparameters: MRR improves from 0.152 to 0.261 (+72\%), and H@10 from 0.304 to 0.424. Best checkpoints were selected at epochs 45 (TransE) and 44 (RotatE) on validation MRR. The asymmetry between head prediction (RotatE H@10=0.312) and tail prediction (RotatE H@10=0.536) motivates the planned relation-type slice analysis.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.48\linewidth]{../../../artifacts/baseline/TransE_curves.png}
 \includegraphics[width=0.48\linewidth]{../../../artifacts/baseline/RotatE_curves.png}
-\caption{Training loss and validation MRR vs.\ epoch for TransE (left, CUDA) and RotatE (right, CUDA). Both models continue to improve at epoch 15, motivating longer runs in Milestone~2.}
+\caption{Training loss and validation MRR vs.\ epoch for TransE (left, CUDA) and RotatE (right, CUDA), 50-epoch budget.}
 \end{figure}
 
 \footnotesize
