@@ -2,10 +2,20 @@
 from __future__ import annotations
 
 from enum import Enum
+from typing import TYPE_CHECKING
 
 import numpy as np
 
-from score_candidates import RankedCandidate, rank_candidates
+from negative_sampling import (
+    BernoulliCorruptionProbs,
+    TrainTripleIndex,
+    choose_corruption_side,
+    generate_candidates,
+)
+from score_candidates import RankedCandidate, rank_candidates, score_triples
+
+if TYPE_CHECKING:
+    import torch
 
 
 class SelectionStrategy(str, Enum):
@@ -96,3 +106,66 @@ def select_negatives(
         return select_mixed(candidates, ranked, k, rng, hard_fraction=hard_fraction)
 
     raise ValueError(f"Unknown strategy: {strategy}")
+
+
+def sample_training_negatives_batch(
+    positive_batch: np.ndarray,
+    strategy: SelectionStrategy,
+    model: torch.nn.Module,
+    *,
+    pool_size: int,
+    k: int,
+    num_entities: int,
+    bernoulli: BernoulliCorruptionProbs,
+    triple_index: TrainTripleIndex,
+    rng: np.random.Generator,
+    device: str,
+    hard_fraction: float = 0.5,
+) -> np.ndarray:
+    """Sample k negatives per positive triple using the two-stage pipeline."""
+    if positive_batch.ndim != 2 or positive_batch.shape[1] != 3:
+        raise ValueError("positive_batch must have shape (batch_size, 3).")
+
+    batch_size = positive_batch.shape[0]
+    negatives: list[list[tuple[int, int, int]]] = []
+    all_candidates: list[tuple[int, int, int]] = []
+    candidate_slices: list[slice] = []
+
+    for row in positive_batch:
+        head, relation, tail = map(int, row)
+        side = choose_corruption_side(relation, rng, bernoulli)
+        candidates = generate_candidates(
+            head,
+            relation,
+            tail,
+            n=pool_size,
+            side=side,
+            num_entities=num_entities,
+            triple_index=triple_index,
+            rng=rng,
+        )
+        start = len(all_candidates)
+        all_candidates.extend(candidates)
+        candidate_slices.append(slice(start, start + len(candidates)))
+
+    if strategy is SelectionStrategy.RANDOM:
+        for slc in candidate_slices:
+            pool = all_candidates[slc]
+            negatives.append(select_random(pool, k, rng))
+        return np.asarray(negatives, dtype=np.int64)
+
+    pool_scores = score_triples(model, all_candidates, device=device)
+    for slc in candidate_slices:
+        pool = all_candidates[slc]
+        pool_score_array = pool_scores[slc]
+        negatives.append(
+            select_negatives(
+                strategy,
+                pool,
+                pool_score_array,
+                k,
+                rng,
+                hard_fraction=hard_fraction,
+            )
+        )
+    return np.asarray(negatives, dtype=np.int64)
