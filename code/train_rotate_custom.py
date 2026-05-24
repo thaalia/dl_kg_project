@@ -101,6 +101,7 @@ def train_one_epoch(
     device: str,
     rng: np.random.Generator,
     limit_batches: int | None = None,
+    hard_fraction: float = 0.5,
 ) -> float:
     model.train()
     order = rng.permutation(len(train_triples))
@@ -126,6 +127,7 @@ def train_one_epoch(
             triple_index=triple_index,
             rng=rng,
             device=device,
+            hard_fraction=hard_fraction,
         )
 
         optimizer.zero_grad(set_to_none=True)
@@ -197,6 +199,8 @@ def main() -> int:
     p.add_argument("--pool-size", type=int, default=32, help="Candidate pool size n.")
     p.add_argument("--num-negs", type=int, default=1, help="Selected negatives k per positive.")
     p.add_argument("--margin", type=float, default=9.0)
+    p.add_argument("--hard-fraction", type=float, default=0.5,
+                   help="Fraction of hard negatives in mixed strategy (default 0.5 = 50/50).")
     p.add_argument("--device", default=None)
     p.add_argument("--limit-batches", type=int, default=None, help="Debug: cap batches per epoch.")
     p.add_argument("--limit-val-eval", type=int, default=None, help="Debug: cap validation triples per epoch.")
@@ -216,7 +220,12 @@ def main() -> int:
     rng = np.random.default_rng(args.seed)
 
     os.chdir(REPO_ROOT)
-    out_dir = REPO_ROOT / "artifacts" / "custom" / f"RotatE_{strategy.value}"
+    if strategy is SelectionStrategy.MIXED:
+        hard_pct = round(args.hard_fraction * 100)
+        run_label = f"RotatE_mixed_{hard_pct}_{100 - hard_pct}"
+    else:
+        run_label = f"RotatE_{strategy.value}"
+    out_dir = REPO_ROOT / "artifacts" / "custom" / run_label
     out_dir.mkdir(parents=True, exist_ok=True)
 
     print("Loading FB15k-237 ...")
@@ -228,6 +237,7 @@ def main() -> int:
         f"Training RotatE | strategy={strategy.value} | d={args.dim} | bs={args.batch_size} | "
         f"pool={args.pool_size} | num_negs={args.num_negs} | lr={args.lr} | "
         f"max_epochs={args.epochs} | patience={args.patience} | device={args.device}"
+        + (f" | hard_fraction={args.hard_fraction}" if strategy is SelectionStrategy.MIXED else "")
     )
 
     model = RotatE(triples_factory=dataset.training, embedding_dim=args.dim).to(args.device)
@@ -260,6 +270,7 @@ def main() -> int:
             device=args.device,
             rng=rng,
             limit_batches=args.limit_batches,
+            hard_fraction=args.hard_fraction,
         )
         val_mrr = filtered_mrr(
             model,
@@ -313,7 +324,8 @@ def main() -> int:
             f"model=RotatE strategy={strategy.value} dim={args.dim} epochs={args.epochs} "
             f"bs={args.batch_size} pool={args.pool_size} num_negs={args.num_negs} "
             f"lr={args.lr} margin={args.margin} patience={args.patience} "
-            f"optimizer=adam device={args.device} seed={args.seed} best_epoch={best_epoch}\n\n"
+            + (f"hard_fraction={args.hard_fraction} " if strategy is SelectionStrategy.MIXED else "")
+            + f"optimizer=adam device={args.device} seed={args.seed} best_epoch={best_epoch}\n\n"
         )
         f.write(header)
         lines = {
