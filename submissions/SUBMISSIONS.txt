@@ -1,52 +1,87 @@
-# Hand-in: Deep Learning Milestone 1 + Knowledge Graphs D2
-# Project scope: TransE vs RotatE (matched) + custom hard negatives + slice/error analysis. GNN optional.
+# Hand-in: Deep Learning Final (M2 + final report) + Knowledge Graphs D3 + Poster
+# Project scope: TransE vs RotatE under matched config + custom random/hard/mixed negative sampling
+#                + relation-frequency / entity-degree / head-vs-tail slice evaluation + qualitative analysis.
 
-## A) One-time: conda environment (if `which python` is not under miniconda envs)
+## Unified experiment config (matches the M1 feedback on "matched hyperparameters")
+# All 7 runs (2 baselines + 5 custom) share:
+#   loss      = NSSALoss(margin=9.0, adversarial_temperature=1.0)   # RotatE paper default
+#   sampler   = Bernoulli with filtered=True
+#   num_negs  = 8 negatives per positive
+#   model     = embedding_dim=128, Adam lr=1e-3, batch_size=1024
+#   training  = 50 epochs max, early stopping on validation MRR, patience=10
+#   seed      = 42
+# Only what changes between runs: model architecture (TransE vs RotatE) and the
+# candidate-selection strategy (PyKEEN default Bernoulli for baselines vs
+# random / hard / mixed selection from a scored candidate pool for the custom runs).
+
+## A) One-time: conda environment (local). On Colab skip this section.
   source /home/thalia/miniconda3/etc/profile.d/conda.sh
   conda install -n kgdl -y python=3.11 pip
   conda activate kgdl
   which python
   # must show: /home/thalia/.../miniconda3/envs/kgdl/bin/python
 
-## B) Install dependencies (in kgdl, from repo root)
-  cd /home/thalia/Documents/dl_kg_project
-  conda activate kgdl
+## B) Install dependencies (from repo root)
+  cd /path/to/dl_kg_project
   python -m pip install -U pip
   python -m pip install -r requirements.txt
 
-## C) Run baselines (produces console metrics + artifacts/baseline/)
-  conda activate kgdl
-  cd /home/thalia/Documents/dl_kg_project
-  # Defaults: 15 epochs (max), batch 1024, d=128, early stopping patience 3 — see code/train_baseline_kge.py
-  python code/train_baseline_kge.py --model TransE
-  python code/train_baseline_kge.py --model RotatE
+## C) Smoke tests (run before any long training, ~30s each)
+  # Baseline (TransE 1 epoch on a small batch)
+  python code/train_baseline_kge.py --model TransE --epochs 1 --batch_size 256 --patience 1
 
-## D) Recompile reports (after editing .tex, or after re-running with new hyperparameters)
-  Tables in milestone1_dl / kg_report_d2 should match artifacts/baseline/*_summary.txt for your run.
+  # Custom pipeline (mixed 1 epoch, 10 batches, 200 val triples)
+  python code/train_rotate_custom.py --strategy mixed --hard-fraction 0.5 \
+    --epochs 1 --batch-size 256 --pool-size 16 --num-negs 4 \
+    --limit-batches 10 --limit-val-eval 200
 
-  Rebuild both PDFs:
-  bash /home/thalia/Documents/dl_kg_project/submissions/compile.sh
+## D) Baseline runs (2 runs, ~50 min total on GPU)
+  python code/train_baseline_kge.py --model TransE --epochs 50 --batch_size 1024 --patience 10
+  python code/train_baseline_kge.py --model RotatE --epochs 50 --batch_size 1024 --patience 10
+  # Artifacts: artifacts/baseline/{TransE,RotatE}_summary.txt, *_curves.png, pykeen_{TransE,RotatE}/
 
-  Or manually, from each directory containing the .tex:
+## E) Custom RotatE runs (5 runs, ~4-6 h total on GPU; do NOT run `git pull` between them)
+  # Main 3 strategies (the core of the D3 / DL-final claim)
+  python code/train_rotate_custom.py --strategy random --num-negs 8 --epochs 50 --patience 10
+  python code/train_rotate_custom.py --strategy hard   --num-negs 8 --epochs 50 --patience 10
+  python code/train_rotate_custom.py --strategy mixed --hard-fraction 0.5 --num-negs 8 --epochs 50 --patience 10
+  # Hard-fraction ablation
+  python code/train_rotate_custom.py --strategy mixed --hard-fraction 0.3 --num-negs 8 --epochs 50 --patience 10
+  python code/train_rotate_custom.py --strategy mixed --hard-fraction 0.7 --num-negs 8 --epochs 50 --patience 10
+  # Artifacts: artifacts/custom/RotatE_{random,hard,mixed_30_70,mixed_50_50,mixed_70_30}/
+  #   summary.txt, history.json, curves.png, trained_model.pkl
+
+## F) Slice + qualitative evaluation (after all runs complete)
+  python code/evaluate_slices.py --all
+  # Produces artifacts/<baseline|custom>/<run>/slices.json with MRR/H@10 by:
+  #   - relation-frequency bucket (rare / mid / frequent) computed on train only
+  #   - entity-degree bucket (low / mid / high) computed on train only
+  #   - head vs tail prediction separately
+
+  python code/qualitative_examples.py --num-triples 5
+  # Produces artifacts/custom/qualitative.md with top-10 predictions per model.
+
+## G) Recompile reports (after each iteration)
+  bash submissions/compile.sh
+  # Or manually, from the directory containing each .tex:
   pdflatex <name>.tex && bibtex <name> && pdflatex <name>.tex && pdflatex <name>.tex
 
-  Rebuild M0 topic proposal (optional, if you changed scope):
-  cd /home/thalia/Documents/dl_kg_project/milestone0_dl
-  pdflatex topic_proposal.tex && bibtex topic_proposal && pdflatex topic_proposal.tex && pdflatex topic_proposal.tex
+## H) What to upload
 
-## E) What to upload (check Moodle for each course)
+  Knowledge Graphs (D3, due 25/05):
+  - PDF: submissions/knowledge_graphs/d3/kg_report_d3.pdf
+  - Notebook: code/train_rotate_custom_colab.ipynb (full custom pipeline + slice eval)
 
-  Deep Learning (M1):
-  - PDF: submissions/deep_learning/milestone1/milestone1_dl.pdf
-  - If required: single ZIP with at least: code/ , requirements.txt , and the PDF
-    (from repo root:)
-      zip -r dl_milestone1_submission.zip code requirements.txt submissions/deep_learning/milestone1/milestone1_dl.pdf
+  Deep Learning (Final report + Milestone 2, due 04-06/06):
+  - PDF: submissions/deep_learning/final/final_dl.pdf
+  - Single ZIP from repo root:
+    zip -r dl_final_submission.zip code requirements.txt \
+      submissions/deep_learning/final/final_dl.pdf
 
-  Knowledge Graphs (D2):
-  - PDF: submissions/knowledge_graphs/d2/kg_report_d2.pdf
+  Poster (session 03/06, atrium C6 16:30):
+  - PDF: submissions/poster/poster.pdf (A1 portrait, colored)
 
-  Optional: updated milestone0_dl/topic_proposal.pdf (aligns with optional GNN).
-
-## F) After hand-in
-  - Custom hard-negative PyTorch code + ablations; slice + error analysis (see proposal).
-  - GNN: only if time; do not block M1 on it.
+## I) Colab safety
+  - Stop the running cell before pulling new code (Ctrl+M I or stop button).
+  - Run `git pull` ONLY between phases, never between two runs that should be comparable.
+  - If a run dies mid-way, just re-run that single command; the others stay safe in artifacts/.

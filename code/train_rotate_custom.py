@@ -199,6 +199,8 @@ def main() -> int:
     p.add_argument("--patience", type=int, default=10)
     p.add_argument("--pool-size", type=int, default=64, help="Candidate pool size n.")
     p.add_argument("--num-negs", type=int, default=8, help="Selected negatives k per positive.")
+    p.add_argument("--margin", type=float, default=9.0,
+                   help="NSSALoss margin (default 9.0, matches RotatE paper).")
     p.add_argument("--adversarial-temperature", type=float, default=1.0,
                    help="Self-adversarial temperature for NSSALoss (default 1.0).")
     p.add_argument("--hard-fraction", type=float, default=0.5,
@@ -238,12 +240,14 @@ def main() -> int:
     print(
         f"Training RotatE | strategy={strategy.value} | d={args.dim} | bs={args.batch_size} | "
         f"pool={args.pool_size} | num_negs={args.num_negs} | lr={args.lr} | "
+        f"loss=NSSALoss(margin={args.margin}, adv_temp={args.adversarial_temperature}) | "
+        f"sampler=bernoulli_filtered | "
         f"max_epochs={args.epochs} | patience={args.patience} | device={args.device}"
         + (f" | hard_fraction={args.hard_fraction}" if strategy is SelectionStrategy.MIXED else "")
     )
 
     model = RotatE(triples_factory=dataset.training, embedding_dim=args.dim).to(args.device)
-    loss_fn = NSSALoss(adversarial_temperature=args.adversarial_temperature)
+    loss_fn = NSSALoss(margin=args.margin, adversarial_temperature=args.adversarial_temperature)
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
     val_filter = [dataset.training.mapped_triples]
@@ -325,7 +329,9 @@ def main() -> int:
         header = (
             f"model=RotatE strategy={strategy.value} dim={args.dim} epochs={args.epochs} "
             f"bs={args.batch_size} pool={args.pool_size} num_negs={args.num_negs} "
-            f"lr={args.lr} margin={args.margin} patience={args.patience} "
+            f"lr={args.lr} loss=NSSALoss margin={args.margin} "
+            f"adversarial_temperature={args.adversarial_temperature} "
+            f"sampler=bernoulli_filtered patience={args.patience} "
             + (f"hard_fraction={args.hard_fraction} " if strategy is SelectionStrategy.MIXED else "")
             + f"optimizer=adam device={args.device} seed={args.seed} best_epoch={best_epoch}\n\n"
         )

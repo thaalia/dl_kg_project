@@ -82,6 +82,12 @@ def main() -> int:
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--patience", type=int, default=3,
                    help="Early-stopping patience: epochs without val MRR improvement.")
+    p.add_argument("--margin", type=float, default=9.0,
+                   help="NSSALoss margin (default 9.0, matches RotatE paper).")
+    p.add_argument("--adversarial-temperature", type=float, default=1.0,
+                   help="NSSALoss self-adversarial temperature (default 1.0).")
+    p.add_argument("--num-negs", type=int, default=8,
+                   help="Number of negatives per positive in Bernoulli sampler (default 8).")
     p.add_argument("--device", default=None,
                    help="Device override: cpu | cuda | mps. Auto-detected if omitted.")
     args = p.parse_args()
@@ -115,6 +121,8 @@ def main() -> int:
     print(
         f"Training {args.model} | d={args.dim} | bs={args.batch_size} | "
         f"lr={args.lr} | max_epochs={args.epochs} | patience={args.patience} | "
+        f"loss=NSSALoss(margin={args.margin}, adv_temp={args.adversarial_temperature}) | "
+        f"sampler=bernoulli(filtered=True, num_negs={args.num_negs}) | "
         f"optimizer=adam | device={args.device}"
     )
 
@@ -122,6 +130,16 @@ def main() -> int:
         model=args.model,
         dataset=dataset,
         model_kwargs={"embedding_dim": args.dim},
+        loss="NSSALoss",
+        loss_kwargs={
+            "margin": args.margin,
+            "adversarial_temperature": args.adversarial_temperature,
+        },
+        negative_sampler="bernoulli",
+        negative_sampler_kwargs={
+            "num_negs_per_pos": args.num_negs,
+            "filtered": True,
+        },
         training_kwargs={"num_epochs": args.epochs, "batch_size": args.batch_size},
         optimizer=optim.Adam,
         optimizer_kwargs={"lr": args.lr},
@@ -142,6 +160,9 @@ def main() -> int:
         header = (
             f"model={args.model} dim={args.dim} epochs={args.epochs} "
             f"bs={args.batch_size} lr={args.lr} patience={args.patience} "
+            f"loss=NSSALoss margin={args.margin} "
+            f"adversarial_temperature={args.adversarial_temperature} "
+            f"sampler=bernoulli filtered=True num_negs={args.num_negs} "
             f"optimizer=adam device={args.device} seed={args.seed}\n\n"
         )
         f.write(header)
