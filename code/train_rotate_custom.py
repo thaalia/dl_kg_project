@@ -9,7 +9,7 @@ Example:
 
 Quick smoke run:
     python code/train_rotate_custom.py --strategy hard --epochs 1 --batch-size 64 \\
-        --pool-size 32 --limit-batches 20
+        --pool-size 16 --limit-batches 20
 """
 from __future__ import annotations
 
@@ -69,21 +69,21 @@ def compute_loss(
     negative_batch: np.ndarray,
     loss_fn: torch.nn.Module,
 ) -> torch.Tensor:
-    pos_scores = model.score_hrt(positive_batch).view(-1)
+    pos_scores = model.score_hrt(positive_batch).view(-1, 1) # <-- Mudei de .view(-1) para .view(-1, 1)
     neg_tensor = torch.as_tensor(negative_batch, dtype=torch.long, device=positive_batch.device)
 
+    if neg_tensor.ndim == 3:
+        batch_size, num_negs, _ = neg_tensor.shape
+        flat_neg = neg_tensor.reshape(batch_size * num_negs, 3)
+        neg_scores = model.score_hrt(flat_neg).view(batch_size, num_negs)  # (batch, num_negs)
+        
+        return loss_fn.process_slcwa_scores(positive_scores=pos_scores, negative_scores=neg_scores) 
+
     if neg_tensor.ndim == 2:
-        neg_scores = model.score_hrt(neg_tensor).view(-1)
-        return loss_fn(pos_scores, neg_scores)
+        neg_scores = model.score_hrt(neg_tensor).view(-1, 1)
+        return loss_fn.process_slcwa_scores(positive_scores=pos_scores, negative_scores=neg_scores)
 
-    if neg_tensor.ndim != 3:
-        raise ValueError(f"Expected negative_batch with 2 or 3 dims, got {neg_tensor.ndim}.")
-
-    batch_size, num_negs, _ = neg_tensor.shape
-    flat_neg = neg_tensor.reshape(batch_size * num_negs, 3)
-    neg_scores = model.score_hrt(flat_neg).view(-1)              # (batch*num_negs,)
-    pos_scores_exp = pos_scores.unsqueeze(1).expand(-1, num_negs).reshape(-1)
-    return loss_fn(pos_scores_exp, neg_scores)
+    raise ValueError(f"Expected negative_batch with 2 or 3 dims, got {neg_tensor.ndim}.")
 
 
 def train_one_epoch(
@@ -238,7 +238,6 @@ def main() -> int:
     print(
         f"Training RotatE | strategy={strategy.value} | d={args.dim} | bs={args.batch_size} | "
         f"pool={args.pool_size} | num_negs={args.num_negs} | lr={args.lr} | "
-        f"adv_temp={args.adversarial_temperature} | "
         f"max_epochs={args.epochs} | patience={args.patience} | device={args.device}"
         + (f" | hard_fraction={args.hard_fraction}" if strategy is SelectionStrategy.MIXED else "")
     )
@@ -326,8 +325,7 @@ def main() -> int:
         header = (
             f"model=RotatE strategy={strategy.value} dim={args.dim} epochs={args.epochs} "
             f"bs={args.batch_size} pool={args.pool_size} num_negs={args.num_negs} "
-            f"lr={args.lr} adversarial_temperature={args.adversarial_temperature} "
-            f"patience={args.patience} "
+            f"lr={args.lr} margin={args.margin} patience={args.patience} "
             + (f"hard_fraction={args.hard_fraction} " if strategy is SelectionStrategy.MIXED else "")
             + f"optimizer=adam device={args.device} seed={args.seed} best_epoch={best_epoch}\n\n"
         )
