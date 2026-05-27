@@ -60,7 +60,13 @@ def select_mixed(
     *,
     hard_fraction: float = 0.5,
 ) -> list[tuple[int, int, int]]:
-    """Pick a mix of random and hard negatives (default 50/50)."""
+    """Pick a mix of random and hard negatives (default 50/50).
+
+    Uses a Binomial draw rather than deterministic rounding so that k=1
+    still produces the correct *expected* mix over many positives: e.g.
+    hard_fraction=0.5 picks hard 50 % of the time and random 50 % of the
+    time, instead of always rounding to one or the other.
+    """
     if k <= 0:
         raise ValueError("k must be positive")
     if not 0.0 <= hard_fraction <= 1.0:
@@ -68,7 +74,10 @@ def select_mixed(
     if k > len(candidates):
         raise ValueError(f"Cannot select k={k} negatives from a pool of size {len(candidates)}.")
 
-    n_hard = int(round(k * hard_fraction))
+    # Stochastic split: each of the k slots is independently hard with
+    # probability hard_fraction.  For k=1 this is a coin flip, which is
+    # correct — the mixture exists across the batch, not within it.
+    n_hard = int(rng.binomial(k, hard_fraction))
     n_hard = min(max(n_hard, 0), k)
     n_random = k - n_hard
 

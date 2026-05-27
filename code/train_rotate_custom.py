@@ -9,7 +9,7 @@ Example:
 
 Quick smoke run:
     python code/train_rotate_custom.py --strategy hard --epochs 1 --batch-size 64 \\
-        --pool-size 16 --limit-batches 20
+        --pool-size 32 --limit-batches 20
 """
 from __future__ import annotations
 
@@ -81,8 +81,9 @@ def compute_loss(
 
     batch_size, num_negs, _ = neg_tensor.shape
     flat_neg = neg_tensor.reshape(batch_size * num_negs, 3)
-    neg_scores = model.score_hrt(flat_neg).view(batch_size, num_negs)
-    return loss_fn.process_slcwa_scores(pos_scores, neg_scores)
+    neg_scores = model.score_hrt(flat_neg).view(-1)              # (batch*num_negs,)
+    pos_scores_exp = pos_scores.unsqueeze(1).expand(-1, num_negs).reshape(-1)
+    return loss_fn(pos_scores_exp, neg_scores)
 
 
 def train_one_epoch(
@@ -182,7 +183,7 @@ def save_curves(out_dir: Path, losses: list[float], val_mrrs: list[float]) -> No
 def main() -> int:
     try:
         from pykeen.datasets import FB15k237
-        from pykeen.losses import MarginRankingLoss
+        from pykeen.losses import NSSALoss
         from pykeen.models import RotatE
     except ImportError:
         print("Install PyKEEN: pip install -r requirements.txt", file=sys.stderr)
@@ -196,9 +197,10 @@ def main() -> int:
     p.add_argument("--dim", type=int, default=128)
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--patience", type=int, default=10)
-    p.add_argument("--pool-size", type=int, default=32, help="Candidate pool size n.")
-    p.add_argument("--num-negs", type=int, default=1, help="Selected negatives k per positive.")
-    p.add_argument("--margin", type=float, default=9.0)
+    p.add_argument("--pool-size", type=int, default=64, help="Candidate pool size n.")
+    p.add_argument("--num-negs", type=int, default=8, help="Selected negatives k per positive.")
+    p.add_argument("--adversarial-temperature", type=float, default=1.0,
+                   help="Self-adversarial temperature for NSSALoss (default 1.0).")
     p.add_argument("--hard-fraction", type=float, default=0.5,
                    help="Fraction of hard negatives in mixed strategy (default 0.5 = 50/50).")
     p.add_argument("--device", default=None)
@@ -236,12 +238,13 @@ def main() -> int:
     print(
         f"Training RotatE | strategy={strategy.value} | d={args.dim} | bs={args.batch_size} | "
         f"pool={args.pool_size} | num_negs={args.num_negs} | lr={args.lr} | "
+        f"adv_temp={args.adversarial_temperature} | "
         f"max_epochs={args.epochs} | patience={args.patience} | device={args.device}"
         + (f" | hard_fraction={args.hard_fraction}" if strategy is SelectionStrategy.MIXED else "")
     )
 
     model = RotatE(triples_factory=dataset.training, embedding_dim=args.dim).to(args.device)
-    loss_fn = MarginRankingLoss(margin=args.margin)
+    loss_fn = NSSALoss(adversarial_temperature=args.adversarial_temperature)
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
     val_filter = [dataset.training.mapped_triples]
@@ -323,7 +326,8 @@ def main() -> int:
         header = (
             f"model=RotatE strategy={strategy.value} dim={args.dim} epochs={args.epochs} "
             f"bs={args.batch_size} pool={args.pool_size} num_negs={args.num_negs} "
-            f"lr={args.lr} margin={args.margin} patience={args.patience} "
+            f"lr={args.lr} adversarial_temperature={args.adversarial_temperature} "
+            f"patience={args.patience} "
             + (f"hard_fraction={args.hard_fraction} " if strategy is SelectionStrategy.MIXED else "")
             + f"optimizer=adam device={args.device} seed={args.seed} best_epoch={best_epoch}\n\n"
         )
