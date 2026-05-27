@@ -1,0 +1,7 @@
+model=RotatE strategy=random dim=128 epochs=50 bs=1024 pool=64 num_negs=8 lr=0.001 loss=NSSALoss margin=9.0 adversarial_temperature=1.0 sampler=bernoulli_filtered patience=10 optimizer=adam device=cuda seed=42 best_epoch=50
+
+val_mrr_best: 0.2482
+test_mrr: 0.2702
+test_hits_at_1: 0.1894
+test_hits_at_3: 0.3004
+test_hits_at_10: 0.4280
