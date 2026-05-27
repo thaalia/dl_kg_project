@@ -1,0 +1,7 @@
+model=RotatE strategy=mixed dim=128 epochs=50 bs=1024 pool=32 num_negs=1 lr=0.001 margin=9.0 patience=10 hard_fraction=0.7 optimizer=adam device=cuda seed=42 best_epoch=49
+
+val_mrr_best: 0.1025
+test_mrr: 0.1209
+test_hits_at_1: 0.0721
+test_hits_at_3: 0.1306
+test_hits_at_10: 0.2170
