@@ -135,6 +135,11 @@ def train_one_epoch(
         loss = compute_loss(model, positive_batch, negative_batch, loss_fn)
         loss.backward()
         optimizer.step()
+        # CRITICAL: replicates PyKEEN's training loop. For RotatE this
+        # projects relation embeddings back onto the complex unit circle
+        # so the "rotations" stay rotations. Without it, distances drift
+        # and NSSALoss collapses (val MRR stays near 0).
+        model.post_parameter_update()
 
         running_loss += float(loss.detach().cpu())
         num_batches += 1
@@ -246,7 +251,11 @@ def main() -> int:
         + (f" | hard_fraction={args.hard_fraction}" if strategy is SelectionStrategy.MIXED else "")
     )
 
-    model = RotatE(triples_factory=dataset.training, embedding_dim=args.dim).to(args.device)
+    model = RotatE(
+        triples_factory=dataset.training,
+        embedding_dim=args.dim,
+        random_seed=args.seed,
+    ).to(args.device)
     loss_fn = NSSALoss(margin=args.margin, adversarial_temperature=args.adversarial_temperature)
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
