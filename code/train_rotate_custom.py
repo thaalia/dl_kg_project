@@ -213,6 +213,9 @@ def main() -> int:
     p.add_argument("--device", default=None)
     p.add_argument("--limit-batches", type=int, default=None, help="Debug: cap batches per epoch.")
     p.add_argument("--limit-val-eval", type=int, default=None, help="Debug: cap validation triples per epoch.")
+    p.add_argument("--run-label", default=None,
+                   help="Override the output folder name under artifacts/custom/. "
+                        "Useful for smoke tests so they don't overwrite a reported run.")
     args = p.parse_args()
 
     args.device = args.device or best_device()
@@ -229,7 +232,9 @@ def main() -> int:
     rng = np.random.default_rng(args.seed)
 
     os.chdir(REPO_ROOT)
-    if strategy is SelectionStrategy.MIXED:
+    if args.run_label:
+        run_label = args.run_label
+    elif strategy is SelectionStrategy.MIXED:
         hard_pct = round(args.hard_fraction * 100)
         run_label = f"RotatE_mixed_{hard_pct}_{100 - hard_pct}"
     else:
