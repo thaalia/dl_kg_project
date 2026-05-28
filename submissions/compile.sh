@@ -4,7 +4,8 @@ set -e
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 TEX1="$ROOT/submissions/deep_learning/milestone1/milestone1_dl.tex"
 TEX2="$ROOT/submissions/knowledge_graphs/d2/kg_report_d2.tex"
-for t in "$TEX1" "$TEX2"; do
+TEX3="$ROOT/submissions/knowledge_graphs/d3/kg_report_d3.tex"
+for t in "$TEX1" "$TEX2" "$TEX3"; do
   echo "=== $t ==="
   ( cd "$(dirname "$t")" && pdflatex -interaction=nonstopmode "$(basename "$t")" && bibtex "$(basename "$t" .tex)" && pdflatex -interaction=nonstopmode "$(basename "$t")" && pdflatex -interaction=nonstopmode "$(basename "$t")" )
 done
