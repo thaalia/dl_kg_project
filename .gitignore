@@ -1,6 +1,4 @@
 guidelines/.venv/
 .venv/
 .cursor/
-
-artifacts/**/*.pkl
 artifacts/**/pykeen_*/
