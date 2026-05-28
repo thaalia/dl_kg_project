@@ -195,7 +195,14 @@ def evaluate_checkpoint(
     """Compute global + sliced metrics for one trained checkpoint."""
     from pykeen.datasets import FB15k237
 
-    print(f"\n=== Slicing {checkpoint_path.relative_to(REPO_ROOT)} ===")
+    # Normalise to an absolute path so relative_to(REPO_ROOT) works regardless
+    # of whether the caller passes 'artifacts/...' or '/abs/path/...'.
+    checkpoint_path = checkpoint_path.resolve()
+    try:
+        display_path = checkpoint_path.relative_to(REPO_ROOT)
+    except ValueError:
+        display_path = checkpoint_path
+    print(f"\n=== Slicing {display_path} ===")
 
     print("Loading FB15k-237 ...")
     dataset = FB15k237()
@@ -217,7 +224,7 @@ def evaluate_checkpoint(
 
     print(f"Evaluating global ({test_mapped.shape[0]} triples) ...")
     output: dict = {
-        "checkpoint": str(checkpoint_path.relative_to(REPO_ROOT)),
+        "checkpoint": str(display_path),
         "num_test_triples": int(test_mapped.shape[0]),
         "global": _evaluate_subset(model, test_mapped, additional, device, batch_size),
     }
