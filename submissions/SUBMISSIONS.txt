@@ -70,7 +70,7 @@
 
   Knowledge Graphs (D3, due 25/05):
   - PDF: submissions/knowledge_graphs/d3/kg_report_d3.pdf
-  - Notebook: code/train_rotate_custom_colab.ipynb (full custom pipeline + slice eval)
+  - Notebook: code/train_pipeline_colab.ipynb (self-contained: baselines + custom + slice + qualitative)
 
   Deep Learning (Final report + Milestone 2, due 04-06/06):
   - PDF: submissions/deep_learning/final/final_dl.pdf
