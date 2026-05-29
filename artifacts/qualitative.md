@@ -4,54 +4,6 @@ _Sampled 5 test triples (seed=42). Top-10 candidates per side, filtered against 
 
 ## Triple 1: (/m/0btyf5z, /film/film/release_date_s./film/film_regional_release_date/film_release_region, /m/0345h)
 
-### artifacts/baseline/pykeen_TransE/trained_model.pkl
-- **Tail prediction**: filtered rank of gold tail `/m/0345h` = **2**
-  - `/m/09c7w0` (score=-6.095)
-  - `/m/0345h` (score=-6.393) ←gold
-  - `/m/0chghy` (score=-6.685)
-  - `/m/01mjq` (score=-6.828)
-  - `/m/03rt9` (score=-6.839)
-  - `/m/03_3d` (score=-6.954)
-  - `/m/0154j` (score=-7.042)
-  - `/m/035qy` (score=-7.044)
-  - `/m/06mkj` (score=-7.050)
-  - `/m/05v8c` (score=-7.050)
-- **Head prediction**: filtered rank of gold head `/m/0btyf5z` = **31**
-  - `/m/03yvf2` (score=-5.305)
-  - `/m/0mbql` (score=-5.373)
-  - `/m/0gvvm6l` (score=-5.407)
-  - `/m/04yg13l` (score=-5.433)
-  - `/m/032clf` (score=-5.452)
-  - `/m/0m3gy` (score=-5.579)
-  - `/m/0bs8hvm` (score=-5.643)
-  - `/m/0184tc` (score=-5.682)
-  - `/m/0m491` (score=-5.723)
-  - `/m/0h21v2` (score=-5.801)
-
-### artifacts/baseline/pykeen_RotatE/trained_model.pkl
-- **Tail prediction**: filtered rank of gold tail `/m/0345h` = **3**
-  - `/m/0jgd` (score=-6.800)
-  - `/m/06mkj` (score=-6.823)
-  - `/m/0345h` (score=-6.893) ←gold
-  - `/m/0154j` (score=-6.933)
-  - `/m/015fr` (score=-6.941)
-  - `/m/035qy` (score=-6.999)
-  - `/m/0chghy` (score=-7.048)
-  - `/m/03_3d` (score=-7.069)
-  - `/m/03spz` (score=-7.070)
-  - `/m/05qhw` (score=-7.121)
-- **Head prediction**: filtered rank of gold head `/m/0btyf5z` = **48**
-  - `/m/049w1q` (score=-5.873)
-  - `/m/03yvf2` (score=-5.927)
-  - `/m/09gmmt6` (score=-5.975)
-  - `/m/0gh65c5` (score=-6.205)
-  - `/m/0gvvm6l` (score=-6.301)
-  - `/m/0gvvf4j` (score=-6.302)
-  - `/m/09146g` (score=-6.442)
-  - `/m/01shy7` (score=-6.449)
-  - `/m/0gfh84d` (score=-6.450)
-  - `/m/0432_5` (score=-6.521)
-
 ### artifacts/custom/RotatE_random/trained_model.pkl
 - **Tail prediction**: filtered rank of gold tail `/m/0345h` = **9**
   - `/m/0jgd` (score=-6.271)
@@ -100,6 +52,30 @@ _Sampled 5 test triples (seed=42). Top-10 candidates per side, filtered against 
   - `/m/0gvvf4j` (score=-7.122)
   - `/m/04yg13l` (score=-7.179)
 
+### artifacts/custom/RotatE_mixed_30_70/trained_model.pkl
+- **Tail prediction**: filtered rank of gold tail `/m/0345h` = **1**
+  - `/m/0345h` (score=-7.429) ←gold
+  - `/m/035qy` (score=-7.527)
+  - `/m/06mkj` (score=-7.605)
+  - `/m/09c7w0` (score=-7.661)
+  - `/m/0154j` (score=-7.665)
+  - `/m/0jgd` (score=-7.672)
+  - `/m/03rt9` (score=-7.685)
+  - `/m/03_3d` (score=-7.741)
+  - `/m/0chghy` (score=-7.769)
+  - `/m/05b4w` (score=-7.831)
+- **Head prediction**: filtered rank of gold head `/m/0btyf5z` = **26**
+  - `/m/049w1q` (score=-6.727)
+  - `/m/0gvvm6l` (score=-6.809)
+  - `/m/0m491` (score=-6.913)
+  - `/m/0gh65c5` (score=-6.937)
+  - `/m/09gmmt6` (score=-6.991)
+  - `/m/0g5879y` (score=-7.001)
+  - `/m/03yvf2` (score=-7.003)
+  - `/m/01shy7` (score=-7.132)
+  - `/m/0184tc` (score=-7.137)
+  - `/m/032clf` (score=-7.237)
+
 ### artifacts/custom/RotatE_mixed_50_50/trained_model.pkl
 - **Tail prediction**: filtered rank of gold tail `/m/0345h` = **3**
   - `/m/035qy` (score=-7.594)
@@ -124,55 +100,31 @@ _Sampled 5 test triples (seed=42). Top-10 candidates per side, filtered against 
   - `/m/0gvvf4j` (score=-7.268)
   - `/m/0c8tkt` (score=-7.269)
 
+### artifacts/custom/RotatE_mixed_70_30/trained_model.pkl
+- **Tail prediction**: filtered rank of gold tail `/m/0345h` = **3**
+  - `/m/06mkj` (score=-7.278)
+  - `/m/0jgd` (score=-7.397)
+  - `/m/0345h` (score=-7.426) ←gold
+  - `/m/05qhw` (score=-7.458)
+  - `/m/0chghy` (score=-7.501)
+  - `/m/035qy` (score=-7.533)
+  - `/m/03_3d` (score=-7.574)
+  - `/m/05b4w` (score=-7.600)
+  - `/m/09c7w0` (score=-7.624)
+  - `/m/0154j` (score=-7.656)
+- **Head prediction**: filtered rank of gold head `/m/0btyf5z` = **15**
+  - `/m/0gh65c5` (score=-6.868)
+  - `/m/03yvf2` (score=-6.944)
+  - `/m/0gvvm6l` (score=-6.952)
+  - `/m/01shy7` (score=-7.190)
+  - `/m/049w1q` (score=-7.202)
+  - `/m/09gmmt6` (score=-7.211)
+  - `/m/0m491` (score=-7.242)
+  - `/m/0184tc` (score=-7.242)
+  - `/m/0g5879y` (score=-7.249)
+  - `/m/0mbql` (score=-7.335)
+
 ## Triple 2: (/m/03ryks, /music/artist/track_contributions./music/track_contribution/role, /m/013y1f)
-
-### artifacts/baseline/pykeen_TransE/trained_model.pkl
-- **Tail prediction**: filtered rank of gold tail `/m/013y1f` = **1**
-  - `/m/013y1f` (score=-5.569) ←gold
-  - `/m/026t6` (score=-5.585)
-  - `/m/05148p4` (score=-5.722)
-  - `/m/0342h` (score=-5.887)
-  - `/m/042v_gx` (score=-6.047)
-  - `/m/07brj` (score=-6.090)
-  - `/m/01vj9c` (score=-6.105)
-  - `/m/03gvt` (score=-6.355)
-  - `/m/07y_7` (score=-6.365)
-  - `/m/01v1d8` (score=-6.375)
-- **Head prediction**: filtered rank of gold head `/m/03ryks` = **2**
-  - `/m/032t2z` (score=-5.498)
-  - `/m/03ryks` (score=-5.569) ←gold
-  - `/m/0f0qfz` (score=-5.575)
-  - `/m/01vsksr` (score=-5.575)
-  - `/m/023l9y` (score=-5.692)
-  - `/m/01vrnsk` (score=-5.770)
-  - `/m/01304j` (score=-5.791)
-  - `/m/01tp5bj` (score=-5.985)
-  - `/m/043c4j` (score=-6.076)
-  - `/m/01vng3b` (score=-6.105)
-
-### artifacts/baseline/pykeen_RotatE/trained_model.pkl
-- **Tail prediction**: filtered rank of gold tail `/m/013y1f` = **2**
-  - `/m/026t6` (score=-5.892)
-  - `/m/013y1f` (score=-6.060) ←gold
-  - `/m/07brj` (score=-6.088)
-  - `/m/0342h` (score=-6.108)
-  - `/m/05148p4` (score=-6.123)
-  - `/m/042v_gx` (score=-6.156)
-  - `/m/01vj9c` (score=-6.177)
-  - `/m/07y_7` (score=-6.235)
-  - `/m/03qjg` (score=-6.299)
-  - `/m/01v1d8` (score=-6.426)
-- **Head prediction**: filtered rank of gold head `/m/03ryks` = **13**
-  - `/m/0140t7` (score=-5.669)
-  - `/m/082brv` (score=-5.698)
-  - `/m/01l4g5` (score=-5.886)
-  - `/m/01mwsnc` (score=-5.913)
-  - `/m/01nn3m` (score=-5.926)
-  - `/m/07_3qd` (score=-5.934)
-  - `/m/023slg` (score=-5.991)
-  - `/m/01w923` (score=-6.011)
-  - `/m/01lvcs1` (score=-6.019)
-  - `/m/01vsksr` (score=-6.025)
 
 ### artifacts/custom/RotatE_random/trained_model.pkl
 - **Tail prediction**: filtered rank of gold tail `/m/013y1f` = **3**
@@ -222,6 +174,30 @@ _Sampled 5 test triples (seed=42). Top-10 candidates per side, filtered against 
   - `/m/03j24kf` (score=-7.308)
   - `/m/0lsw9` (score=-7.313)
 
+### artifacts/custom/RotatE_mixed_30_70/trained_model.pkl
+- **Tail prediction**: filtered rank of gold tail `/m/013y1f` = **4**
+  - `/m/0342h` (score=-6.670)
+  - `/m/042v_gx` (score=-6.694)
+  - `/m/026t6` (score=-6.764)
+  - `/m/013y1f` (score=-6.799) ←gold
+  - `/m/05148p4` (score=-6.963)
+  - `/m/03qjg` (score=-7.055)
+  - `/m/01vj9c` (score=-7.243)
+  - `/m/03gvt` (score=-7.426)
+  - `/m/07brj` (score=-7.488)
+  - `/m/0gkd1` (score=-7.657)
+- **Head prediction**: filtered rank of gold head `/m/03ryks` = **1**
+  - `/m/03ryks` (score=-6.799) ←gold
+  - `/m/01vsyg9` (score=-7.034)
+  - `/m/01p95y0` (score=-7.208)
+  - `/m/023l9y` (score=-7.210)
+  - `/m/023slg` (score=-7.245)
+  - `/m/0lsw9` (score=-7.276)
+  - `/m/0140t7` (score=-7.295)
+  - `/m/082brv` (score=-7.308)
+  - `/m/01lvcs1` (score=-7.329)
+  - `/m/018gkb` (score=-7.333)
+
 ### artifacts/custom/RotatE_mixed_50_50/trained_model.pkl
 - **Tail prediction**: filtered rank of gold tail `/m/013y1f` = **4**
   - `/m/026t6` (score=-6.977)
@@ -246,55 +222,31 @@ _Sampled 5 test triples (seed=42). Top-10 candidates per side, filtered against 
   - `/m/0lsw9` (score=-7.289)
   - `/m/07r4c` (score=-7.333)
 
+### artifacts/custom/RotatE_mixed_70_30/trained_model.pkl
+- **Tail prediction**: filtered rank of gold tail `/m/013y1f` = **6**
+  - `/m/0342h` (score=-6.987)
+  - `/m/042v_gx` (score=-7.171)
+  - `/m/026t6` (score=-7.173)
+  - `/m/05148p4` (score=-7.228)
+  - `/m/03qjg` (score=-7.265)
+  - `/m/013y1f` (score=-7.344) ←gold
+  - `/m/01vj9c` (score=-7.532)
+  - `/m/03gvt` (score=-7.690)
+  - `/m/07brj` (score=-7.753)
+  - `/m/07y_7` (score=-8.114)
+- **Head prediction**: filtered rank of gold head `/m/03ryks` = **10**
+  - `/m/01p95y0` (score=-7.061)
+  - `/m/01vrnsk` (score=-7.175)
+  - `/m/01vsyg9` (score=-7.175)
+  - `/m/0140t7` (score=-7.187)
+  - `/m/023l9y` (score=-7.217)
+  - `/m/023slg` (score=-7.238)
+  - `/m/03j24kf` (score=-7.249)
+  - `/m/01vsksr` (score=-7.330)
+  - `/m/032t2z` (score=-7.331)
+  - `/m/03ryks` (score=-7.344) ←gold
+
 ## Triple 3: (/m/07b_l, /location/location/contains, /m/013m4v)
-
-### artifacts/baseline/pykeen_TransE/trained_model.pkl
-- **Tail prediction**: filtered rank of gold tail `/m/013m4v` = **168**
-  - `/m/0vzm` (score=-6.376)
-  - `/m/07b_l` (score=-6.402)
-  - `/m/03l2n` (score=-6.901)
-  - `/m/0d35y` (score=-7.056)
-  - `/m/0tbql` (score=-7.236)
-  - `/m/0fr0t` (score=-7.281)
-  - `/m/05jbn` (score=-7.446)
-  - `/m/02j3w` (score=-7.449)
-  - `/m/0djd3` (score=-7.489)
-  - `/m/01pl14` (score=-7.532)
-- **Head prediction**: filtered rank of gold head `/m/07b_l` = **6**
-  - `/m/013m4v` (score=-6.402)
-  - `/m/030qb3t` (score=-8.217)
-  - `/m/059rby` (score=-8.397)
-  - `/m/0d060g` (score=-8.410)
-  - `/m/02_286` (score=-8.411)
-  - `/m/07b_l` (score=-8.501) ←gold
-  - `/m/0f2rq` (score=-8.505)
-  - `/m/01n7q` (score=-8.559)
-  - `/m/05fjf` (score=-8.692)
-  - `/m/0mr_8` (score=-8.708)
-
-### artifacts/baseline/pykeen_RotatE/trained_model.pkl
-- **Tail prediction**: filtered rank of gold tail `/m/013m4v` = **1138**
-  - `/m/08mbj5d` (score=-7.256)
-  - `/m/04n6k` (score=-7.504)
-  - `/m/04ztj` (score=-7.793)
-  - `/m/02hcv8` (score=-7.855)
-  - `/m/06jk5_` (score=-7.866)
-  - `/m/030qb3t` (score=-7.926)
-  - `/m/0cv3w` (score=-7.964)
-  - `/m/05zppz` (score=-7.969)
-  - `/m/0vzm` (score=-7.980)
-  - `/m/05njyy` (score=-7.994)
-- **Head prediction**: filtered rank of gold head `/m/07b_l` = **14**
-  - `/m/08mbj5d` (score=-7.984)
-  - `/m/02jx1` (score=-8.624)
-  - `/m/0jbk9` (score=-8.627)
-  - `/m/07ssc` (score=-8.671)
-  - `/m/05zppz` (score=-8.817)
-  - `/m/01n7q` (score=-8.858)
-  - `/m/0d060g` (score=-8.918)
-  - `/m/03rk0` (score=-9.056)
-  - `/m/02hcv8` (score=-9.076)
-  - `/m/0f8l9c` (score=-9.096)
 
 ### artifacts/custom/RotatE_random/trained_model.pkl
 - **Tail prediction**: filtered rank of gold tail `/m/013m4v` = **1032**
@@ -344,6 +296,30 @@ _Sampled 5 test triples (seed=42). Top-10 candidates per side, filtered against 
   - `/m/0f8l9c` (score=-9.285)
   - `/m/0d060g` (score=-9.292)
 
+### artifacts/custom/RotatE_mixed_30_70/trained_model.pkl
+- **Tail prediction**: filtered rank of gold tail `/m/013m4v` = **412**
+  - `/m/08mbj5d` (score=-7.979)
+  - `/m/0n7q7` (score=-8.094)
+  - `/m/0fw2y` (score=-8.221)
+  - `/m/02dtg` (score=-8.377)
+  - `/m/030qb3t` (score=-8.379)
+  - `/m/0nr_q` (score=-8.383)
+  - `/m/02_286` (score=-8.431)
+  - `/m/01n7q` (score=-8.455)
+  - `/m/01jzyx` (score=-8.459)
+  - `/m/0sv6n` (score=-8.472)
+- **Head prediction**: filtered rank of gold head `/m/07b_l` = **4**
+  - `/m/08mbj5d` (score=-8.963)
+  - `/m/01n7q` (score=-9.025)
+  - `/m/07ssc` (score=-9.037)
+  - `/m/07b_l` (score=-9.106) ←gold
+  - `/m/059rby` (score=-9.121)
+  - `/m/02jx1` (score=-9.215)
+  - `/m/0345h` (score=-9.255)
+  - `/m/02_286` (score=-9.293)
+  - `/m/03rjj` (score=-9.302)
+  - `/m/04ztj` (score=-9.334)
+
 ### artifacts/custom/RotatE_mixed_50_50/trained_model.pkl
 - **Tail prediction**: filtered rank of gold tail `/m/013m4v` = **408**
   - `/m/08mbj5d` (score=-8.062)
@@ -368,55 +344,31 @@ _Sampled 5 test triples (seed=42). Top-10 candidates per side, filtered against 
   - `/m/03rjj` (score=-9.295)
   - `/m/04n6k` (score=-9.310)
 
+### artifacts/custom/RotatE_mixed_70_30/trained_model.pkl
+- **Tail prediction**: filtered rank of gold tail `/m/013m4v` = **320**
+  - `/m/08mbj5d` (score=-8.041)
+  - `/m/0n7q7` (score=-8.167)
+  - `/m/030qb3t` (score=-8.230)
+  - `/m/0fw2y` (score=-8.232)
+  - `/m/02dtg` (score=-8.373)
+  - `/m/02_286` (score=-8.380)
+  - `/m/0dyl9` (score=-8.453)
+  - `/m/0xc9x` (score=-8.455)
+  - `/m/013f9v` (score=-8.469)
+  - `/m/0nr_q` (score=-8.469)
+- **Head prediction**: filtered rank of gold head `/m/07b_l` = **4**
+  - `/m/01n7q` (score=-8.958)
+  - `/m/07ssc` (score=-9.022)
+  - `/m/08mbj5d` (score=-9.023)
+  - `/m/07b_l` (score=-9.063) ←gold
+  - `/m/059rby` (score=-9.116)
+  - `/m/04n6k` (score=-9.145)
+  - `/m/02jx1` (score=-9.176)
+  - `/m/03rjj` (score=-9.261)
+  - `/m/0d060g` (score=-9.337)
+  - `/m/0f8l9c` (score=-9.344)
+
 ## Triple 4: (/m/01bh6y, /people/person/profession, /m/02hrh1q)
-
-### artifacts/baseline/pykeen_TransE/trained_model.pkl
-- **Tail prediction**: filtered rank of gold tail `/m/02hrh1q` = **1**
-  - `/m/02hrh1q` (score=-6.111) ←gold
-  - `/m/01d_h8` (score=-6.846)
-  - `/m/02jknp` (score=-6.866)
-  - `/m/0np9r` (score=-6.880)
-  - `/m/0dxtg` (score=-7.048)
-  - `/m/02krf9` (score=-7.134)
-  - `/m/018gz8` (score=-7.192)
-  - `/m/0d1pc` (score=-7.492)
-  - `/m/03gjzk` (score=-7.498)
-  - `/m/015cjr` (score=-7.574)
-- **Head prediction**: filtered rank of gold head `/m/01bh6y` = **1**
-  - `/m/01bh6y` (score=-6.111) ←gold
-  - `/m/02mjmr` (score=-6.275)
-  - `/m/0157m` (score=-6.429)
-  - `/m/06y3r` (score=-6.610)
-  - `/m/01htxr` (score=-6.704)
-  - `/m/0chrwb` (score=-6.718)
-  - `/m/01pw9v` (score=-6.725)
-  - `/m/07g2v` (score=-6.741)
-  - `/m/08p1gp` (score=-6.755)
-  - `/m/0c5vh` (score=-6.773)
-
-### artifacts/baseline/pykeen_RotatE/trained_model.pkl
-- **Tail prediction**: filtered rank of gold tail `/m/02hrh1q` = **1**
-  - `/m/02hrh1q` (score=-6.703) ←gold
-  - `/m/01d_h8` (score=-7.167)
-  - `/m/0np9r` (score=-7.188)
-  - `/m/0dxtg` (score=-7.236)
-  - `/m/02jknp` (score=-7.244)
-  - `/m/03gjzk` (score=-7.461)
-  - `/m/018gz8` (score=-7.500)
-  - `/m/02krf9` (score=-7.589)
-  - `/m/0kyk` (score=-7.593)
-  - `/m/0cbd2` (score=-7.629)
-- **Head prediction**: filtered rank of gold head `/m/01bh6y` = **10**
-  - `/m/08mbj5d` (score=-5.573)
-  - `/m/02mjmr` (score=-6.321)
-  - `/m/05zppz` (score=-6.363)
-  - `/m/04ztj` (score=-6.549)
-  - `/m/0157m` (score=-6.555)
-  - `/m/016szr` (score=-6.603)
-  - `/m/02779r4` (score=-6.667)
-  - `/m/01gg59` (score=-6.676)
-  - `/m/04n6k` (score=-6.680)
-  - `/m/01bh6y` (score=-6.703) ←gold
 
 ### artifacts/custom/RotatE_random/trained_model.pkl
 - **Tail prediction**: filtered rank of gold tail `/m/02hrh1q` = **1**
@@ -466,6 +418,30 @@ _Sampled 5 test triples (seed=42). Top-10 candidates per side, filtered against 
   - `/m/081nh` (score=-7.044)
   - `/m/09b6zr` (score=-7.045)
 
+### artifacts/custom/RotatE_mixed_30_70/trained_model.pkl
+- **Tail prediction**: filtered rank of gold tail `/m/02hrh1q` = **1**
+  - `/m/02hrh1q` (score=-7.020) ←gold
+  - `/m/01d_h8` (score=-7.454)
+  - `/m/0dxtg` (score=-7.520)
+  - `/m/02jknp` (score=-7.690)
+  - `/m/03gjzk` (score=-7.755)
+  - `/m/0np9r` (score=-7.893)
+  - `/m/018gz8` (score=-7.914)
+  - `/m/0cbd2` (score=-7.991)
+  - `/m/02krf9` (score=-8.014)
+  - `/m/0kyk` (score=-8.018)
+- **Head prediction**: filtered rank of gold head `/m/01bh6y` = **8**
+  - `/m/08mbj5d` (score=-6.577)
+  - `/m/081nh` (score=-6.918)
+  - `/m/0157m` (score=-6.925)
+  - `/m/02mjmr` (score=-6.930)
+  - `/m/0d05fv` (score=-6.947)
+  - `/m/09b6zr` (score=-6.985)
+  - `/m/08f3b1` (score=-7.017)
+  - `/m/01bh6y` (score=-7.020) ←gold
+  - `/m/03llf8` (score=-7.030)
+  - `/m/056wb` (score=-7.033)
+
 ### artifacts/custom/RotatE_mixed_50_50/trained_model.pkl
 - **Tail prediction**: filtered rank of gold tail `/m/02hrh1q` = **1**
   - `/m/02hrh1q` (score=-7.130) ←gold
@@ -490,55 +466,31 @@ _Sampled 5 test triples (seed=42). Top-10 candidates per side, filtered against 
   - `/m/0c5vh` (score=-7.085)
   - `/m/045cq` (score=-7.092)
 
+### artifacts/custom/RotatE_mixed_70_30/trained_model.pkl
+- **Tail prediction**: filtered rank of gold tail `/m/02hrh1q` = **1**
+  - `/m/02hrh1q` (score=-7.103) ←gold
+  - `/m/01d_h8` (score=-7.528)
+  - `/m/0dxtg` (score=-7.602)
+  - `/m/02jknp` (score=-7.757)
+  - `/m/03gjzk` (score=-7.808)
+  - `/m/018gz8` (score=-7.962)
+  - `/m/0np9r` (score=-8.047)
+  - `/m/0cbd2` (score=-8.058)
+  - `/m/02krf9` (score=-8.070)
+  - `/m/0kyk` (score=-8.213)
+- **Head prediction**: filtered rank of gold head `/m/01bh6y` = **13**
+  - `/m/08mbj5d` (score=-6.547)
+  - `/m/0168ql` (score=-6.958)
+  - `/m/02mjmr` (score=-7.030)
+  - `/m/021r7r` (score=-7.039)
+  - `/m/016szr` (score=-7.049)
+  - `/m/08f3b1` (score=-7.050)
+  - `/m/09b6zr` (score=-7.057)
+  - `/m/01gg59` (score=-7.065)
+  - `/m/0157m` (score=-7.079)
+  - `/m/04n7njg` (score=-7.084)
+
 ## Triple 5: (/m/03q95r, /people/person/profession, /m/02hrh1q)
-
-### artifacts/baseline/pykeen_TransE/trained_model.pkl
-- **Tail prediction**: filtered rank of gold tail `/m/02hrh1q` = **1**
-  - `/m/02hrh1q` (score=-7.232) ←gold
-  - `/m/02krf9` (score=-7.508)
-  - `/m/0np9r` (score=-7.558)
-  - `/m/0dxtg` (score=-7.822)
-  - `/m/01d_h8` (score=-7.858)
-  - `/m/018gz8` (score=-7.895)
-  - `/m/03gjzk` (score=-7.938)
-  - `/m/02jknp` (score=-7.948)
-  - `/m/021wpb` (score=-8.326)
-  - `/m/0cbd2` (score=-8.339)
-- **Head prediction**: filtered rank of gold head `/m/03q95r` = **130**
-  - `/m/02mjmr` (score=-6.275)
-  - `/m/0157m` (score=-6.429)
-  - `/m/06y3r` (score=-6.610)
-  - `/m/01htxr` (score=-6.704)
-  - `/m/0chrwb` (score=-6.718)
-  - `/m/01pw9v` (score=-6.725)
-  - `/m/07g2v` (score=-6.741)
-  - `/m/08p1gp` (score=-6.755)
-  - `/m/0c5vh` (score=-6.773)
-  - `/m/04ns3gy` (score=-6.774)
-
-### artifacts/baseline/pykeen_RotatE/trained_model.pkl
-- **Tail prediction**: filtered rank of gold tail `/m/02hrh1q` = **1**
-  - `/m/02hrh1q` (score=-7.318) ←gold
-  - `/m/02krf9` (score=-7.726)
-  - `/m/03gjzk` (score=-7.761)
-  - `/m/01d_h8` (score=-7.762)
-  - `/m/018gz8` (score=-7.767)
-  - `/m/0np9r` (score=-7.792)
-  - `/m/02jknp` (score=-7.827)
-  - `/m/0dxtg` (score=-7.897)
-  - `/m/0d1pc` (score=-8.371)
-  - `/m/0kyk` (score=-8.487)
-- **Head prediction**: filtered rank of gold head `/m/03q95r` = **154**
-  - `/m/08mbj5d` (score=-5.573)
-  - `/m/02mjmr` (score=-6.321)
-  - `/m/05zppz` (score=-6.363)
-  - `/m/04ztj` (score=-6.549)
-  - `/m/0157m` (score=-6.555)
-  - `/m/016szr` (score=-6.603)
-  - `/m/02779r4` (score=-6.667)
-  - `/m/01gg59` (score=-6.676)
-  - `/m/04n6k` (score=-6.680)
-  - `/m/09b6zr` (score=-6.715)
 
 ### artifacts/custom/RotatE_random/trained_model.pkl
 - **Tail prediction**: filtered rank of gold tail `/m/02hrh1q` = **1**
@@ -588,6 +540,30 @@ _Sampled 5 test triples (seed=42). Top-10 candidates per side, filtered against 
   - `/m/081nh` (score=-7.044)
   - `/m/09b6zr` (score=-7.045)
 
+### artifacts/custom/RotatE_mixed_30_70/trained_model.pkl
+- **Tail prediction**: filtered rank of gold tail `/m/02hrh1q` = **1**
+  - `/m/02hrh1q` (score=-7.591) ←gold
+  - `/m/02krf9` (score=-8.166)
+  - `/m/01d_h8` (score=-8.223)
+  - `/m/03gjzk` (score=-8.348)
+  - `/m/02jknp` (score=-8.388)
+  - `/m/0np9r` (score=-8.404)
+  - `/m/0dxtg` (score=-8.417)
+  - `/m/018gz8` (score=-8.604)
+  - `/m/0cbd2` (score=-8.639)
+  - `/m/0kyk` (score=-8.640)
+- **Head prediction**: filtered rank of gold head `/m/03q95r` = **481**
+  - `/m/08mbj5d` (score=-6.577)
+  - `/m/081nh` (score=-6.918)
+  - `/m/0157m` (score=-6.925)
+  - `/m/02mjmr` (score=-6.930)
+  - `/m/0d05fv` (score=-6.947)
+  - `/m/09b6zr` (score=-6.985)
+  - `/m/08f3b1` (score=-7.017)
+  - `/m/03llf8` (score=-7.030)
+  - `/m/056wb` (score=-7.033)
+  - `/m/016szr` (score=-7.057)
+
 ### artifacts/custom/RotatE_mixed_50_50/trained_model.pkl
 - **Tail prediction**: filtered rank of gold tail `/m/02hrh1q` = **1**
   - `/m/02hrh1q` (score=-7.496) ←gold
@@ -611,4 +587,28 @@ _Sampled 5 test triples (seed=42). Top-10 candidates per side, filtered against 
   - `/m/09b6zr` (score=-7.081)
   - `/m/0c5vh` (score=-7.085)
   - `/m/045cq` (score=-7.092)
+
+### artifacts/custom/RotatE_mixed_70_30/trained_model.pkl
+- **Tail prediction**: filtered rank of gold tail `/m/02hrh1q` = **1**
+  - `/m/02hrh1q` (score=-7.601) ←gold
+  - `/m/02krf9` (score=-8.257)
+  - `/m/01d_h8` (score=-8.308)
+  - `/m/03gjzk` (score=-8.382)
+  - `/m/0np9r` (score=-8.382)
+  - `/m/02jknp` (score=-8.490)
+  - `/m/0dxtg` (score=-8.510)
+  - `/m/018gz8` (score=-8.599)
+  - `/m/0cbd2` (score=-8.637)
+  - `/m/0kyk` (score=-8.679)
+- **Head prediction**: filtered rank of gold head `/m/03q95r` = **404**
+  - `/m/08mbj5d` (score=-6.547)
+  - `/m/0168ql` (score=-6.958)
+  - `/m/02mjmr` (score=-7.030)
+  - `/m/021r7r` (score=-7.039)
+  - `/m/016szr` (score=-7.049)
+  - `/m/08f3b1` (score=-7.050)
+  - `/m/09b6zr` (score=-7.057)
+  - `/m/01gg59` (score=-7.065)
+  - `/m/0157m` (score=-7.079)
+  - `/m/04n7njg` (score=-7.084)
 

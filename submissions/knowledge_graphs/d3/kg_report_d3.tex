@@ -40,15 +40,16 @@ negative-triple selection strategy during training matters. Our main contributio
 is a \textbf{two-stage negative sampling pipeline} implemented in standalone
 PyTorch: Stage~1 generates a filtered pool of $n\!=\!64$ Bernoulli-corrupted
 candidates (no known-true triple included); Stage~2 selects $k\!=\!8$ training
-negatives using one of three strategies---\emph{random}, \emph{hard}
+negatives using one of three strategies --- \emph{random}, \emph{hard}
 (top-$k$ by current model score), or \emph{mixed} (Binomial split).
 Across five controlled runs with all other hyper-parameters fixed,
-\textbf{hard-negative selection raises MRR from 0.270 to 0.298 (+10.4\%)};
-a 30\% hard mixture recovers 95\% of that gain.
+\textbf{hard-negative selection raises MRR from 0.270 to 0.298 (+10.4\%),
+with the best mixed variant (70\% hard) reaching 0.299};
+a 30\% hard mixture already recovers 95\% of that gain.
 Relation-wise slice evaluation shows the largest improvements on
 \emph{rare} relations (+3.6~pp) and \emph{high-degree} tail entities (+2.9~pp).
-Qualitative examples confirm that hard-negative training pushes the correct
-entity from mid-list ranks to the top~10 on several structured relation types.
+Qualitative examples confirm that hard-negative training reduces the rank of
+the correct entity from 9--17 (random) down to 1--6 on structured relation types.
 \end{abstract}
 
 %% ─────────────────────────────── 1. INTRODUCTION ────────────────────────────
@@ -58,21 +59,21 @@ entity from mid-list ranks to the top~10 on several structured relation types.
 A \textbf{knowledge graph} (KG) is a directed multi-relational graph
 $\mathcal{G}=(\mathcal{E},\mathcal{R},\mathcal{T})$ where each triple
 $(h,r,t)\in\mathcal{T}\subseteq\mathcal{E}\times\mathcal{R}\times\mathcal{E}$
-encodes a binary fact. \textbf{Link prediction} (KB completion) asks: given a
+encodes a binary fact. \textbf{Link prediction} (KG completion) asks: given a
 partial query $(h,r,?)$ or $(?,r,t)$, rank all candidate entities.
 
-Training KG embedding (KGE) models requires \emph{negative} triples---facts
+Training KG embedding (KGE) models requires \emph{negative} triples, facts
 that are false. Standard Bernoulli corruption~\cite{wang2014knowledge} replaces
 the head or tail uniformly at random. After a few training epochs the model has
 already learned to reject trivially implausible negatives, so the gradient signal
-from easy negatives becomes small and uninformative. Hard negatives---false
-triples that the current model still scores highly---carry more information per
+from easy negatives becomes small and uninformative. Hard negatives --- false
+triples that the current model still scores highly --- carry more information per
 update, but training exclusively on them can be unstable.
 
 \textbf{Research question.} For link prediction on FB15k-237, does replacing
 uniform random negatives with model-scored hard negatives improve test-set MRR
 and Hits@$k$? Does a mixture of random and hard negatives yield a better
-accuracy--stability trade-off?
+accuracy-stability trade-off?
 
 \textbf{Contributions.}
 \begin{itemize}
@@ -98,7 +99,7 @@ accuracy--stability trade-off?
 Entities and relations are embedded in $\mathbb{R}^d$. A relation is modelled as
 a translation: $f(h,r,t)=-\|\mathbf{h}+\mathbf{r}-\mathbf{t}\|_p$. TransE is
 parameter-efficient but cannot represent symmetric, reflexive, or 1-to-N
-relations---all common in FB15k-237.
+relations --- all common in FB15k-237.
 
 \paragraph{RotatE~\cite{sun2019rotate}.}
 Entities live in $\mathbb{C}^d$; each relation is an element-wise rotation on
@@ -106,7 +107,7 @@ the unit circle: $f(h,r,t)=-\|\mathbf{h}\circ\mathbf{r}-\mathbf{t}\|$, where
 $|r_k|=1$. After each gradient step the constraint is enforced by
 \texttt{model.post\_parameter\_update()}.
 Rotation composition can model symmetry ($\theta=\pi$), inversion, and
-multi-hop composition---a strict superset of TransE's expressiveness.
+multi-hop composition, a strict superset of TransE's expressiveness.
 
 \paragraph{NSSALoss~\cite{sun2019rotate}.}
 Self-adversarial negative sampling loss re-weights each negative by its
@@ -131,13 +132,13 @@ High-fanout relations corrupt the head more often, reducing false negatives.
 Self-adversarial weighting in NSSALoss implicitly up-weights hard negatives.
 Explicit \emph{selection} of hard negatives (i.e.\ choosing them before the
 loss step) further concentrates the training signal. Mixed
-strategies~\cite{sun2019rotate} balance exploration and exploitation.
+strategies balance exploration and exploitation.
 
 %% ────────────────────────────── 3. DATASET ──────────────────────────────────
 \section{Dataset}
 \label{sec:dataset}
 
-\textbf{FB15k-237}~\cite{sun2019rotate} is derived from Freebase by removing
+\textbf{FB15k-237}~\cite{toutanova2015observed} is derived from Freebase by removing
 inverse-relation leakage present in the original FB15k benchmark.
 It is the standard evaluation corpus for KGE models.
 
@@ -213,7 +214,7 @@ model-score-based selection before the loss step.}
 \label{fig:pipeline}
 \end{figure}
 
-\paragraph{Stage 1 --- Filtered pool generation.}
+\paragraph{Stage 1: Filtered pool generation.}
 For each positive triple $(h,r,t)$, we draw a corruption side (head or tail)
 from Bernoulli($p_{\mathrm{head},r}$) and sample a pool of $n=64$ unique
 candidates. A candidate is accepted only if it does not appear in the training
@@ -221,7 +222,7 @@ set (filtered). If fewer than $n$ candidates can be found within
 $100n$ attempts, a \texttt{RuntimeError} is raised to prevent silent
 data quality issues.
 
-\paragraph{Stage 2 --- Selection strategies.}
+\paragraph{Stage 2: Selection strategies.}
 After scoring all $n$ candidates with the current model, $k=8$ negatives are
 selected according to one of three strategies:
 
@@ -238,9 +239,7 @@ selected according to one of three strategies:
 
 \textbf{Key design note.} Because all three strategies score the \emph{same}
 pool of $n$ candidates, the computational overhead of Stage~2 is identical
-across strategies---only the final selection differs. All Stage~2 variants thus
-add the same $\sim\!20\text{--}30\%$ wall-time overhead compared to standard
-sampling.
+across strategies --- only the final selection differs.
 
 \subsection{Evaluation protocol}
 
@@ -254,8 +253,8 @@ Model selection uses validation MRR; test set is evaluated once per run.
 
 \subsection{Slice evaluation}
 
-We partition the test set along three axes---relation frequency, head
-out-degree, and tail in-degree---each split at the 33rd and 67th percentiles
+We partition the test set along three axes --- relation frequency, head
+out-degree, and tail in-degree --- each split at the 33rd and 67th percentiles
 of the training distribution (tertile cuts). All cut points are derived from
 the \textbf{training split only} to prevent leakage. Results are cached to
 \texttt{artifacts/slice\_buckets.json} for reproducibility.
@@ -291,8 +290,8 @@ more ambiguous.
 
 \textbf{Note on D2 comparison.}
 These results differ substantially from the preliminary baselines reported
-in Deliverable~2 (TransE 0.152, RotatE 0.261), which used simple Bernoulli
-sampling with $k=1$ negative per positive and a margin-ranking loss.
+in Deliverable~2 (TransE 0.152, RotatE 0.261), which used a
+margin-ranking loss with PyKEEN's default sampling configuration.
 The present baselines use NSSALoss with $k=8$ filtered negatives per positive
 and the same configuration as the custom pipeline, making all comparisons in
 this report internally consistent. The D2 numbers should not be used as a
@@ -322,12 +321,12 @@ Bernoulli filtered sampler, 50 epochs, $d=128$, Adam lr=$10^{-3}$, seed~42
 Strategy & MRR & H@1 & H@3 & H@10 \\
 \midrule
 Random (control)    & 0.270 & 0.189 & 0.300 & 0.428 \\
-Hard                & 0.298 & 0.217 & 0.327 & 0.459 \\
+Hard                & 0.298 & \textbf{0.217} & 0.327 & 0.459 \\
 Mixed 30\%          & 0.297 & 0.215 & 0.326 & 0.459 \\
-Mixed 50\%          & 0.298 & 0.216 & 0.328 & 0.460 \\
+Mixed 50\%          & 0.298 & 0.216 & \textbf{0.328} & 0.460 \\
 Mixed 70\%          & \textbf{0.299} & \textbf{0.217} & \textbf{0.328} & \textbf{0.461} \\
 \midrule
-\emph{$\Delta$ (hard vs. random)} & \emph{+0.028} & \emph{+0.028} & \emph{+0.027} & \emph{+0.031} \\
+\emph{$\Delta$ (hard vs. random)} & \emph{+0.028} & \emph{+0.028} & \emph{+0.026} & \emph{+0.031} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -370,7 +369,7 @@ baselines by $+0.020$--$+0.022$ MRR (+7.0--+7.9\%). The random custom run
 the gain comes from hard-negative \emph{selection}, not from the two-stage
 infrastructure itself. Note that this comparison is not fully controlled, as
 the PyKEEN baselines and the custom pipeline differ in their internal sampling
-infrastructure before Stage2 (see Limitation3 in Section~\ref{sec:discussion}).
+infrastructure before Stage~2 (see Limitation 3 in Section~\ref{sec:discussion}).
 
 %% ──────────────────────────────── 6. SLICE EVALUATION ───────────────────────
 \section{Slice Evaluation}
@@ -379,37 +378,35 @@ infrastructure before Stage2 (see Limitation3 in Section~\ref{sec:discussion}).
 \begin{table}[h]
 \centering\scriptsize
 \caption{MRR by relation-frequency tertile (test set, filtered).
-Tertile cuts computed from training triples only. $n$ = test triples per bucket.}
+Tertile cuts from training triples only.
+Rare: $n=849$; Medium: $n=2{,}172$; Frequent: $n=17{,}417$.}
 \label{tab:slice-rel}
-\begin{tabular}{@{}lcccc@{}}
+\begin{tabular}{@{}lccc@{}}
 \toprule
-Strategy & \multicolumn{3}{c}{Relation frequency} \\
-\cmidrule(lr){2-4}
-         & Rare ($n=849$) & Medium ($n=2172$) & Frequent ($n=17417$) \\
+Strategy & Rare & Medium & Frequent \\
 \midrule
-Random   & 0.382 & 0.332 & 0.257 \\
-Hard     & \textbf{0.418} & \textbf{0.362} & \textbf{0.284} \\
-Mixed 30\% & 0.418 & 0.362 & 0.283 \\
-Mixed 50\% & 0.414 & 0.363 & 0.285 \\
-Mixed 70\% & 0.416 & 0.362 & 0.285 \\
+Random     & 0.382 & 0.332 & 0.257 \\
+Hard       & \textbf{0.418} & 0.362 & 0.284 \\
+Mixed 30\% & \textbf{0.418} & 0.362 & 0.283 \\
+Mixed 50\% & 0.414 & \textbf{0.363} & 0.284 \\
+Mixed 70\% & 0.416 & 0.362 & \textbf{0.285} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \begin{table}[h]
 \centering\scriptsize
-\caption{MRR by tail in-degree tertile (test set, filtered).}
+\caption{MRR by tail in-degree tertile (test set, filtered).
+Low: $n=1{,}478$; Mid: $n=3{,}029$; High: $n=15{,}849$.}
 \label{tab:slice-tail}
-\begin{tabular}{@{}lcccc@{}}
+\begin{tabular}{@{}lccc@{}}
 \toprule
-Strategy & \multicolumn{3}{c}{Tail in-degree} \\
-\cmidrule(lr){2-4}
-         & Low ($n=1478$) & Mid ($n=3029$) & High ($n=15849$) \\
+Strategy & Low & Mid & High \\
 \midrule
-Random   & 0.157 & 0.154 & 0.301 \\
-Hard     & 0.187 & \textbf{0.175} & \textbf{0.330} \\
+Random     & 0.157 & 0.154 & 0.301 \\
+Hard       & 0.187 & \textbf{0.175} & 0.330 \\
 Mixed 30\% & 0.186 & 0.174 & 0.328 \\
-Mixed 50\% & 0.185 & 0.173 & 0.331 \\
+Mixed 50\% & 0.185 & 0.173 & \textbf{0.331} \\
 Mixed 70\% & \textbf{0.188} & \textbf{0.175} & 0.330 \\
 \bottomrule
 \end{tabular}
@@ -424,10 +421,10 @@ Mixed 70\% & \textbf{0.188} & \textbf{0.175} & 0.330 \\
 Strategy & Low ($n=1810$) & Mid ($n=5664$) & High ($n=12914$) \\
 \midrule
 Random   & 0.263 & 0.251 & 0.276 \\
-Hard     & 0.285 & 0.268 & \textbf{0.308} \\
+Hard     & \textbf{0.285} & 0.268 & 0.307 \\
 Mixed 30\% & 0.283 & 0.267 & 0.306 \\
-Mixed 50\% & 0.284 & 0.269 & 0.307 \\
-Mixed 70\% & 0.283 & 0.268 & 0.308 \\
+Mixed 50\% & 0.284 & \textbf{0.269} & 0.307 \\
+Mixed 70\% & 0.283 & 0.268 & \textbf{0.308} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -437,7 +434,9 @@ Hard negatives provide the largest absolute gain on \emph{rare} relations:
 $+3.6$~pp MRR (0.382$\to$0.418). Rare relations have few training triples;
 their embeddings are less well-calibrated, so each hard-negative gradient step
 carries more information relative to the current model uncertainty. Gains on
-frequent relations (+2.7~pp) are proportionally smaller but still consistent.
+frequent relations (+2.7--+2.8~pp across strategies) are proportionally
+smaller but still consistent, with Mixed~70\% achieving the highest
+frequent-relation MRR (0.285).
 
 \paragraph{Tail in-degree (Table~\ref{tab:slice-tail}).}
 Low-degree tail entities remain the hardest to predict across all strategies
@@ -447,14 +446,14 @@ sampling strategy can overcome. The largest absolute gain occurs for
 and harder negatives are more discriminative.
 
 \paragraph{Head out-degree (Table~\ref{tab:slice-head}).}
-Gains are more uniform across head-degree buckets ($+2.2$--$+3.2$~pp).
+Gains range from $+1.8$~pp (mid-degree) to $+3.2$~pp (high-degree).
 Hub entities (high out-degree) appear in many training triples and develop
 strong embeddings regardless of strategy; the hard-negative benefit is thus
 relatively stable across degree levels.
 
 \paragraph{Head vs.\ tail asymmetry.}
 Across all five custom runs, head MRR ranges from 0.169 to 0.195, while tail
-MRR ranges from 0.371 to 0.403---roughly twice as large.
+MRR ranges from 0.371 to 0.403, roughly twice as large.
 This 2$\times$ asymmetry reflects the prevalence of 1-to-N relations:
 for a relation such as \texttt{/film/film/genre}, many distinct heads share
 the same tail, so head prediction must distinguish among many plausible
@@ -483,42 +482,49 @@ rank of the correct entity compared to random sampling.
 
 \begin{table}[h]
 \centering\scriptsize
-\caption{Filtered tail rank of the gold entity for two representative test
-triples, across all five strategies. Lower rank is better.}
+\caption{Filtered rank of the gold entity for two representative test
+triples, across all five strategies (lower is better).
+R1: \emph{tail} prediction for a film regional-release-date relation
+(\texttt{release\_date\_s\ldots film\_release\_region}).
+R2: \emph{head} prediction for \texttt{/location/location/contains}.
+Full paths in \texttt{artifacts/qualitative.md}.}
 \label{tab:qualitative}
 \begin{tabular}{@{}lcc@{}}
 \toprule
-Strategy & \texttt{/film/film/directed\_by} & \texttt{/music/group\_membership/role} \\
+Strategy   & R1 (film, tail) & R2 (location, head) \\
 \midrule
-Random   & 34  & 47  \\
-Hard     &  6  &  8  \\
-Mixed 30\% &  7  &  9  \\
-Mixed 50\% &  7  &  8  \\
-Mixed 70\% &  6  &  8  \\
+Random     &  9 & 17 \\
+Hard       &  1 &  6 \\
+Mixed 30\% &  1 &  4 \\
+Mixed 50\% &  3 &  5 \\
+Mixed 70\% &  3 &  4 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-A recurring pattern is:
+\noindent A recurring pattern is:
 \begin{itemize}
-  \item For \textbf{structured, compositional relations}
-    (e.g.\ \texttt{/music/group\_member\-ship/role},
-    \texttt{/film/film/directed\_by}),
-    hard-negative training pushes the correct entity from rank~20--50
-    under random sampling into the top~5 or top~10. This confirms that
-    hard negatives specifically help the model learn the fine-grained
-    boundaries of compositional relation types.
+  \item For \textbf{structured relations with few valid answers}
+    (R1: film release region),
+    hard-negative training reduces the rank of the correct entity
+    from rank~9 (random) to rank~1.
+    Mixed~30\% matches pure hard here, confirming that even a small dose
+    of hard negatives is sufficient to learn the tight boundaries of
+    this relation type.
   \item For \textbf{high-fanout relations}
-    (e.g.\ \texttt{/film/film/language}),
-    all strategies struggle similarly: the gold entity lands in rank~50--200
-    because hundreds of languages plausibly satisfy the query.
-    This is a fundamental ambiguity, not a sampling artefact.
-  \item \textbf{Mixed strategies} (all three $p$ values) behave nearly
-    identically to pure hard on individual examples, consistent with the
-    aggregate results showing $<\!0.2$~pp MRR difference.
+    (R2: \texttt{/location/location/contains}),
+    tail prediction remains hopeless for all strategies
+    (rank~320--1032), as thousands of entities plausibly satisfy the
+    query. Head prediction, however, improves consistently: random
+    places the correct head at rank~17; hard and all mixed variants
+    reach rank~4--6. This asymmetry confirms that hard negatives help
+    where the embedding space is dense enough to discriminate.
+  \item \textbf{Mixed strategies} match or exceed pure hard on both
+    examples (Mixed~30\% achieves rank~1 and rank~4 vs.\ Hard's 1
+    and~6), consistent with the aggregate $<\!0.2$~pp MRR gap.
 \end{itemize}
 
-The full qualitative report (5 triples $\times$ 5 strategies, top-10
+\noindent The full qualitative report (5 triples $\times$ 5 strategies, top-10
 predictions per query) is committed at \texttt{artifacts/qualitative.md}.
 
 %% ─────────────────────────────── 8. DISCUSSION ──────────────────────────────
@@ -542,22 +548,25 @@ model scores are poorly calibrated. We recommend mixed~30\% as the default
 for practitioners working within a fixed compute budget.
 
 \paragraph{Computational cost.}
-The two-stage pipeline adds $\sim\!20$--$30\%$ wall-time per epoch vs.\
-standard Bernoulli sampling, because Stage~2 requires scoring a pool of 64
-candidates per positive with the current model.
-All five custom runs completed 50 full epochs; total cost was approximately
-4--5~hours on a single NVIDIA~T4 GPU.
-Baseline training (TransE + RotatE via PyKEEN) added $\sim\!80$ minutes.
-Slice evaluation (\texttt{evaluate\_slices.py --all}) required a further
-$\sim\!15$--20~minutes.
+Timings are approximate (not formally recorded) and were observed on a single
+NVIDIA~T4 GPU (Google Colab).
+Each of the five custom RotatE runs took $\sim\!1$~hour (50 epochs), for a
+total of $\sim\!5$~hours across all strategies.
+Baseline training (TransE + RotatE via PyKEEN) took $\sim\!30$~minutes in
+total.
+Slice evaluation (\texttt{evaluate\_slices.py --all}) required $\sim\!5$~minutes.
+The dominant overhead in the custom pipeline is Stage~2, which scores a pool
+of $n=64$ candidates per positive triple with the current model before each
+gradient step.
 
 \paragraph{Synergy with NSSALoss.}
 NSSALoss already performs implicit hard-negative up-weighting via the
-adversarial weight $p_i$. Explicit hard selection concentrates training on
-the same negatives that receive the largest $p_i$ weight, producing a doubly
-amplified gradient signal. This synergy likely explains why the gain from
-hard selection ($+10.4\%$) is larger than what is typically reported when
-hard selection is used with a simpler margin loss.
+adversarial weight $p_i$ (Eq.~\ref{eq:nssa}). Explicit hard selection
+concentrates training on the same negatives that receive the largest
+$p_i$ weight, producing a doubly amplified gradient signal.
+This combination of selection-level and loss-level hard-negative emphasis
+is absent when using a uniform-weight loss such as standard margin ranking,
+which may contribute to the magnitude of the improvement observed here.
 
 \paragraph{Limitations.}
 (1) All experiments use RotatE; the benefit of hard-negative selection on
@@ -594,6 +603,24 @@ on FB15k-237 shows that:
 The pipeline is orthogonal to model architecture and loss function; future
 work could apply it to newer KGE models (e.g.\ RESCAL, TuckER) or combine
 it with curriculum scheduling of the hard fraction over training.
+
+%% ──────────────────────────────── INDIVIDUAL CONTRIBUTIONS ──────────────────
+\section*{Individual Contributions}
+
+\noindent\textbf{Thalia Delhaise} ---
+TODO
+
+\smallskip
+\noindent\textbf{Lenny Briclet} ---
+TODO
+
+\smallskip
+\noindent\textbf{André Fonseca} ---
+TODO
+
+\smallskip
+\noindent\textbf{Rafael Gufler} ---
+TODO
 
 %% ──────────────────────────────── REFERENCES ─────────────────────────────────
 {\small

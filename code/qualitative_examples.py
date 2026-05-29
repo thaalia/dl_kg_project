@@ -35,7 +35,9 @@ DEFAULT_CHECKPOINTS = [
     ARTIFACTS_DIR / "baseline" / "pykeen_RotatE" / "trained_model.pkl",
     ARTIFACTS_DIR / "custom" / "RotatE_random" / "trained_model.pkl",
     ARTIFACTS_DIR / "custom" / "RotatE_hard" / "trained_model.pkl",
+    ARTIFACTS_DIR / "custom" / "RotatE_mixed_30_70" / "trained_model.pkl",
     ARTIFACTS_DIR / "custom" / "RotatE_mixed_50_50" / "trained_model.pkl",
+    ARTIFACTS_DIR / "custom" / "RotatE_mixed_70_30" / "trained_model.pkl",
 ]
 
 
