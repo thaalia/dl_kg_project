@@ -25,7 +25,7 @@ A Controlled Ablation on FB15k-237}
 
 \author{
   Thalia Delhaise \quad Lenny Briclet \quad Andr\'e Fonseca \quad Rafael Gufler \\
-  RC2526 --- Knowledge Graphs --- Deliverable 3 (Final Report) \\
+  RC2526, Knowledge Graphs, Deliverable 3 (Final Report) \\
   Joint project with Deep Learning (Project 425282 -- Milestone 2)
 }
 
@@ -40,7 +40,7 @@ negative-triple selection strategy during training matters. Our main contributio
 is a \textbf{two-stage negative sampling pipeline} implemented in standalone
 PyTorch: Stage~1 generates a filtered pool of $n\!=\!64$ Bernoulli-corrupted
 candidates (no known-true triple included); Stage~2 selects $k\!=\!8$ training
-negatives using one of three strategies --- \emph{random}, \emph{hard}
+negatives using one of three strategies: \emph{random}, \emph{hard}
 (top-$k$ by current model score), or \emph{mixed} (Binomial split).
 Across five controlled runs with all other hyper-parameters fixed,
 \textbf{hard-negative selection raises MRR from 0.270 to 0.298 (+10.4\%),
@@ -66,8 +66,8 @@ Training KG embedding (KGE) models requires \emph{negative} triples, facts
 that are false. Standard Bernoulli corruption~\cite{wang2014knowledge} replaces
 the head or tail uniformly at random. After a few training epochs the model has
 already learned to reject trivially implausible negatives, so the gradient signal
-from easy negatives becomes small and uninformative. Hard negatives --- false
-triples that the current model still scores highly --- carry more information per
+from easy negatives becomes small and uninformative. Hard negatives, false
+triples that the current model still scores highly, carry more information per
 update, but training exclusively on them can be unstable.
 
 \textbf{Research question.} For link prediction on FB15k-237, does replacing
@@ -99,7 +99,7 @@ accuracy-stability trade-off?
 Entities and relations are embedded in $\mathbb{R}^d$. A relation is modelled as
 a translation: $f(h,r,t)=-\|\mathbf{h}+\mathbf{r}-\mathbf{t}\|_p$. TransE is
 parameter-efficient but cannot represent symmetric, reflexive, or 1-to-N
-relations --- all common in FB15k-237.
+relations, all common in FB15k-237.
 
 \paragraph{RotatE~\cite{sun2019rotate}.}
 Entities live in $\mathbb{C}^d$; each relation is an element-wise rotation on
@@ -239,7 +239,7 @@ selected according to one of three strategies:
 
 \textbf{Key design note.} Because all three strategies score the \emph{same}
 pool of $n$ candidates, the computational overhead of Stage~2 is identical
-across strategies --- only the final selection differs.
+across strategies; only the final selection differs.
 
 \subsection{Evaluation protocol}
 
@@ -253,8 +253,8 @@ Model selection uses validation MRR; test set is evaluated once per run.
 
 \subsection{Slice evaluation}
 
-We partition the test set along three axes --- relation frequency, head
-out-degree, and tail in-degree --- each split at the 33rd and 67th percentiles
+We partition the test set along three axes (relation frequency, head
+out-degree, and tail in-degree), each split at the 33rd and 67th percentiles
 of the training distribution (tertile cuts). All cut points are derived from
 the \textbf{training split only} to prevent leakage. Results are cached to
 \texttt{artifacts/slice\_buckets.json} for reproducibility.
@@ -607,19 +607,19 @@ it with curriculum scheduling of the hard fraction over training.
 %% ──────────────────────────────── INDIVIDUAL CONTRIBUTIONS ──────────────────
 \section*{Individual Contributions}
 
-\noindent\textbf{Thalia Delhaise} ---
+\noindent\textbf{Thalia Delhaise}:
 TODO
 
 \smallskip
-\noindent\textbf{Lenny Briclet} ---
+\noindent\textbf{Lenny Briclet}:
 TODO
 
 \smallskip
-\noindent\textbf{André Fonseca} ---
+\noindent\textbf{André Fonseca}:
 TODO
 
 \smallskip
-\noindent\textbf{Rafael Gufler} ---
+\noindent\textbf{Rafael Gufler}:
 TODO
 
 %% ──────────────────────────────── REFERENCES ─────────────────────────────────
