@@ -605,22 +605,24 @@ work could apply it to newer KGE models (e.g.\ RESCAL, TuckER) or combine
 it with curriculum scheduling of the hard fraction over training.
 
 %% ──────────────────────────────── INDIVIDUAL CONTRIBUTIONS ──────────────────
-\section*{Individual Contributions}
-
-\noindent\textbf{Thalia Delhaise}:
-TODO
-
-\smallskip
-\noindent\textbf{Lenny Briclet}:
-TODO
-
-\smallskip
-\noindent\textbf{André Fonseca}:
-TODO
-
-\smallskip
-\noindent\textbf{Rafael Gufler}:
-TODO
+\section{Team Contributions}
+\label{sec:contributions}
+\begin{itemize}
+  \item \textbf{Thalia Delhaise} implemented the three core pipeline modules
+    (\texttt{negative\_sampling.py}, \texttt{score\_candidates.py},
+    \texttt{select\_candidates.py}) and their unit-test scripts; designed the
+    two-stage pool-then-select architecture.
+  \item \textbf{Lenny Briclet} built the baseline and custom training scripts
+    (\texttt{train\_baseline\_kge.py}, \texttt{train\_rotate\_custom.py});
+    implemented slice and qualitative evaluation
+    (\texttt{evaluate\_slices.py}, \texttt{qualitative\_examples.py}); and
+    prepared the Colab reproduction notebook.
+  \item \textbf{Andr\'e Fonseca} integrated the custom PyTorch training loop
+    with NSSALoss and RotatE \texttt{post\_parameter\_update}; ran and
+    validated the five-strategy ablation on GPU.
+  \item \textbf{Rafael Gufler} led report writing and figure preparation;
+    coordinated experiment configuration and artifact management across runs.
+\end{itemize}
 
 %% ──────────────────────────────── REFERENCES ─────────────────────────────────
 {\small
