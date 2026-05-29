@@ -1,3 +1,19 @@
-guidelines/.venv/
 .venv/
 .cursor/
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# LaTeX build artefacts
+*.aux
+*.bbl
+*.blg
+*.brf
+*.log
+*.out
+*.fls
+*.fdb_latexmk
+texput.log
