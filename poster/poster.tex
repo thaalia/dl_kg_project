@@ -1,0 +1,270 @@
+%% ============================================================
+%% Academic Poster – Deep Learning class 2024/2025
+%% A1 portrait (59.4 × 84.1 cm)
+%% Compile with:  pdflatex poster.tex  (run twice for overlays)
+%% Requires: beamerposter, tikz, tcolorbox, graphicx, helvet
+%% ============================================================
+\documentclass[final]{beamer}
+
+\usepackage[
+  size=custom,
+  width=59.4,
+  height=84.1,
+  scale=1.15
+]{beamerposter}
+
+\usetheme{default}
+\beamertemplatenavigationsymbolsempty
+\setbeamertemplate{headline}{}
+\setbeamertemplate{footline}{}
+
+%% Zero out beamer's text margins so \textwidth == \paperwidth
+\setbeamersize{text margin left=0pt, text margin right=0pt}
+
+%% ── Packages ────────────────────────────────────────────────
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usepackage{tcolorbox}
+\tcbuselibrary{most, skins}
+\usepackage{graphicx}
+\usepackage{ragged2e}
+\usepackage{amsmath, amssymb}
+\usepackage{booktabs}
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+
+%% ── Colours ─────────────────────────────────────────────────
+\definecolor{posterblue}{HTML}{224C9C}
+\definecolor{lightheader}{HTML}{BCD6ED}
+
+%% ── Beamer overrides ────────────────────────────────────────
+\setbeamercolor{background canvas}{bg=white}
+\setbeamercolor{normal text}{fg=black}
+
+%% ── Layout constants ────────────────────────────────────────
+%% Header + footer heights (must match TikZ fills below)
+\newlength{\headerH}  \setlength{\headerH}{8.0cm}
+\newlength{\footerH}  \setlength{\footerH}{3.5cm}
+\newlength{\bodyGap}  \setlength{\bodyGap}{0.6cm}   % gap below header
+\newlength{\bodyBot}  \setlength{\bodyBot}{0.5cm}   % gap above footer
+
+%% Body spacer = header + gap (pushes columns below the TikZ header)
+\newlength{\bodySpacer}
+\setlength{\bodySpacer}{\headerH}
+\addtolength{\bodySpacer}{\bodyGap}
+
+%% Column widths  (must sum to \paperwidth = 59.4cm)
+%%   1.5 | 25.7 | 5.0 | 25.7 | 1.5  = 59.4 cm
+\newlength{\lrPad}   \setlength{\lrPad}{1.5cm}
+\newlength{\colW}    \setlength{\colW}{25.7cm}
+\newlength{\gapW}    \setlength{\gapW}{5.0cm}
+
+%% ── Section-header label ────────────────────────────────────
+%% Light-blue chip, bold text.  \vspace* preserved even at top of column.
+\newcommand{\secheader}[1]{%
+  \vspace*{0.55cm}%
+  \noindent{%
+    \setlength{\fboxsep}{5pt}%
+    \colorbox{lightheader}{%
+      \textbf{\fontsize{28}{34}\selectfont\strut #1}%
+    }%
+  }\par\vspace{0.30cm}%
+}
+
+%% ── Figure / image placeholder ──────────────────────────────
+\newcommand{\figplaceholder}[2][8.5cm]{%
+  \begin{center}
+    \setlength{\fboxsep}{0pt}%
+    \fcolorbox{posterblue!40}{lightheader!40}{%
+      \parbox[c][#1][c]{\dimexpr\linewidth-2\fboxrule-0pt}{%
+        \centering\color{posterblue}\textit{#2}%
+      }%
+    }%
+  \end{center}%
+}
+
+%% ── Column separator ────────────────────────────────────────
+\newcommand{\colsep}{%
+  \par\vspace{0.3cm}%
+  \noindent\textcolor{posterblue!20}{\rule{\linewidth}{0.5pt}}%
+  \par\vspace{0.1cm}%
+}
+
+%% ============================================================
+\begin{document}
+\begin{frame}[t]{}
+
+%% ════════════════════════════════════════════════════════════
+%% HEADER — TikZ overlay, anchored to page top corners
+%% ════════════════════════════════════════════════════════════
+\begin{tikzpicture}[remember picture, overlay]
+  %% Full-bleed blue band
+  \fill[posterblue]
+    (current page.north west)
+    rectangle
+    ([yshift=-\headerH]current page.north east);
+
+  %% Ciencias logo — top-left, vertically centred in header
+  \node[anchor=west, inner sep=0pt] at
+    ($(current page.north west)+(0.8cm,-0.5\headerH)$)
+    {\includegraphics[height=6.2cm]{images/ciencias_logo}};
+
+  %% Title / authors block — vertically centred in the header band
+  \node[anchor=west, inner sep=0pt] at
+    ($(current page.north west)+(17.5cm,-0.5\headerH)$) {
+      \begin{minipage}[c][\headerH][c]{40cm}
+        \color{white}%
+        {\fontsize{44}{52}\selectfont\bfseries Title of the Project}\\[0.4cm]
+        {\fontsize{30}{36}\selectfont Author Names and Student Numbers}\\[0.4cm]
+        {\fontsize{18}{22}\selectfont
+          M.Sc.\ Your\_master\enspace\textbullet\enspace
+          Deep Learning class 2024/2025}%
+      \end{minipage}
+    };
+\end{tikzpicture}
+
+%% Push body below the header band
+\vspace*{\bodySpacer}
+
+%% ════════════════════════════════════════════════════════════
+%% BODY — five columns: pad | left | gap | right | pad
+%% ════════════════════════════════════════════════════════════
+\begin{columns}[t, totalwidth=\paperwidth]
+
+%% Left padding ──────────────────────────────────────────────
+\begin{column}{\lrPad}\end{column}
+
+%% LEFT COLUMN ───────────────────────────────────────────────
+\begin{column}{\colW}
+\RaggedRight
+
+\secheader{Objectives}
+Describe your main objective here. What is the task you are solving?
+What are the key challenges? You may also include a small motivating figure.
+
+\colsep
+\secheader{Problem}
+Why is this an interesting problem?
+\begin{itemize}
+  \item What are common approaches in the literature?
+  \item What are their limitations or drawbacks?
+\end{itemize}
+
+\colsep
+\secheader{Methodology}
+
+\figplaceholder[9cm]{Your methodology figure here\\(e.g.\ architecture diagram)}
+
+{\small\color{posterblue!80}%
+Figure 1: Something that helps explain your methodology ---
+for example, the key figure from a reference paper.}
+
+\vspace{0.4cm}
+Describe your approach. Explain the model, algorithm, or method used.
+How does it address the limitations mentioned above?
+
+\colsep
+\secheader{Experiment 1}
+Description of experiment setup, hyperparameters, and training details.
+
+\vspace{0.3cm}
+\secheader{Experiment $n$}
+\ldots
+
+\colsep
+\secheader{References}
+{\fontsize{14}{17}\selectfont
+\begin{enumerate}\setlength{\itemsep}{4pt}
+  \item Komatitsch, D., \& Martin, R. (2007). An unsplit convolutional
+    perfectly matched layer improved at grazing incidence for the seismic
+    wave equation. \textit{Geophysics}, 72(5), SM155--SM167.
+  \item Mathieu, M., Couprie, C., \& LeCun, Y. (2015). Deep multi-scale
+    video prediction beyond mean square error. \textit{ICLR}, 1--14.
+  \item Tompson, J., Schlachter, K., Sprechmann, P., \& Perlin, K. (2016).
+    Accelerating Eulerian Fluid Simulation With Convolutional Networks.
+\end{enumerate}
+}
+
+\end{column}
+
+%% Centre gap ────────────────────────────────────────────────
+\begin{column}{\gapW}\end{column}
+
+%% RIGHT COLUMN ──────────────────────────────────────────────
+\begin{column}{\colW}
+\RaggedRight
+
+\secheader{Datasets}
+Describe the dataset(s) you use. Include:
+\begin{itemize}
+  \item Size, splits, and source
+  \item Representative examples or statistics
+  \item Any preprocessing steps
+\end{itemize}
+
+\figplaceholder[6cm]{Dataset example / statistics figure}
+
+\colsep
+\secheader{Results}
+Summary of your experimental results. Include tables and/or learning curves.
+
+\vspace{0.4cm}
+\begin{center}
+\begin{tabular}{lcc}
+  \toprule
+  \textbf{Method} & \textbf{Metric 1} & \textbf{Metric 2} \\
+  \midrule
+  Baseline        & 0.00              & 0.00              \\
+  Method A        & 0.00              & 0.00              \\
+  Ours            & \textbf{0.00}     & \textbf{0.00}     \\
+  \bottomrule
+\end{tabular}
+\end{center}
+\vspace{0.2cm}
+{\small Table 1: Results of Experiment 1.}
+
+\figplaceholder[7cm]{Learning curves / additional results figure}
+
+\colsep
+\secheader{Conclusions}
+\begin{itemize}
+  \item \textbf{Main takeaway:} What is the key result or contribution?
+  \item \textbf{Successes:} Where did your method work well?
+  \item \textbf{Failures:} Where did it fall short, and why?
+  \item \textbf{Future work:} What are the next steps or open questions?
+\end{itemize}
+
+\end{column}
+
+%% Right padding ─────────────────────────────────────────────
+\begin{column}{\lrPad}\end{column}
+
+\end{columns}
+
+%% ════════════════════════════════════════════════════════════
+%% FOOTER — TikZ overlay, anchored to page bottom corners
+%% ════════════════════════════════════════════════════════════
+\begin{tikzpicture}[remember picture, overlay]
+  %% Full-bleed blue band
+  \fill[posterblue]
+    (current page.south west)
+    rectangle
+    ([yshift=\footerH]current page.south east);
+
+  %% Acknowledgements text — left-aligned, vertically centred
+  \node[anchor=west, inner sep=0pt] at
+    ($(current page.south west)+(2cm, 0.5\footerH)$) {%
+      \color{white}\fontsize{16}{20}\selectfont
+      Acknowledgements: This poster session is kindly sponsored by:%
+    };
+
+  %% NTT DATA logo — right-aligned, vertically centred
+  \node[anchor=east, inner sep=0pt] at
+    ($(current page.south east)+(-2cm, 0.5\footerH)$) {%
+      \setlength{\fboxsep}{4pt}%
+      \colorbox{white}{\includegraphics[height=1.8cm]{images/nttdata_logo}}%
+    };
+\end{tikzpicture}
+
+\end{frame}
+\end{document}
