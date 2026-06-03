@@ -1,5 +1,5 @@
 %% ============================================================
-%% Hard Negative Mining for KG Link Prediction — A1 Poster
+%% Hard Negative Mining for KG Link Prediction: A1 Poster
 %% Follows DL-Poster-Template v2 2024/2025
 %% Compile TWICE: pdflatex poster.tex
 %% ============================================================
@@ -87,12 +87,12 @@
     (current page.north west) rectangle
     ([yshift=-\headerH]current page.north east);
 
-  %% Logo — top left
+  %% Logo: top left
   \node[anchor=north west, inner sep=0pt] at
     ($(current page.north west)+(0.7cm,-0.35cm)$)
     {\includegraphics[height=4.8cm]{images/ciencias_logo}};
 
-  %% Master / class label — bottom left of header
+  %% Master / class label: bottom left of header
   \node[anchor=south west, inner sep=0pt] at
     ($(current page.south west)+(0.7cm,\footerH+0.3cm)$) {};  %% placeholder
 
@@ -106,7 +106,7 @@
       \end{minipage}%
     };
 
-  %% Title + authors — centred right of logo
+  %% Title + authors: centred right of logo
   \node[anchor=center, inner sep=0pt] at
     ($(current page.north west)+(38cm,-0.5\headerH)$) {%
       \begin{minipage}[c][\headerH][c]{36cm}
@@ -128,7 +128,7 @@
 \vspace*{\bodySpacer}
 
 %% ════════════════════════════════════════════════════════════
-%% BODY — 2 columns
+%% BODY: 2 columns
 %% ════════════════════════════════════════════════════════════
 \begin{columns}[t, totalwidth=\paperwidth]
 \begin{column}{\lrPad}\end{column}
@@ -143,8 +143,8 @@
 \secheader{Objectives}
 
 \begin{itemize}\setlength{\itemsep}{5pt}
-  \item Study whether \textbf{hard negatives} — plausible but wrong
-    training examples — improve link prediction in knowledge graphs.
+  \item Study whether \textbf{hard negatives} (plausible but wrong
+    training examples) improve link prediction in knowledge graphs.
   \item Design a \textbf{two-stage sampling pipeline} that upgrades
     negative quality at \emph{zero extra computational cost}.
   \item Compare five strategies (Random, Hard, Mixed 30/50/70\,\%)
@@ -269,11 +269,11 @@ Models learn by comparing correct triples against \textit{negatives}
 \vspace{0.25cm}
 {\small
 \textbf{Selection strategies tested in Stage~2:}\\[5pt]
-\hspace*{6pt}$\bullet$~\textbf{Random} — sample 8 uniformly (control)\\[3pt]
-\hspace*{6pt}$\bullet$~\textbf{Hard} — take the 8 highest-scoring wrong candidates\\[3pt]
-\hspace*{6pt}$\bullet$~\textbf{Mixed $p$} — take fraction $p$ hard + $(1-p)$ random,
+\hspace*{6pt}$\bullet$~\textbf{Random}: sample 8 uniformly (control)\\[3pt]
+\hspace*{6pt}$\bullet$~\textbf{Hard}: take the 8 highest-scoring wrong candidates\\[3pt]
+\hspace*{6pt}$\bullet$~\textbf{Mixed $p$}: take fraction $p$ hard + $(1-p)$ random,
   with $p\in\{30\%,\,50\%,\,70\%\}$\\[8pt]
-\textbf{All strategies share the same Stage~1 pool — zero extra compute.}\\[5pt]
+\textbf{All strategies share the same Stage~1 pool: zero extra compute.}\\[5pt]
 Common setup: RotatE, embedding dim~128, batch~1024, Adam lr$=10^{-3}$,
 50~epochs (patience~10), seed~42.
 }
@@ -407,7 +407,7 @@ epoch~15} and converge to a 7--8\,\% higher plateau with no
 training instability.}
 
 \vspace{0.25cm}
-{\small\textbf{Stratified evaluation — MRR gain Hard vs.\ Random:}}
+{\small\textbf{Stratified evaluation, MRR gain Hard vs.\ Random:}}
 
 \vspace{0.2cm}
 \begin{center}
