@@ -169,10 +169,11 @@ most likely to complete the triple?
   qm/.style={draw=amber, line width=1.8pt, rounded corners=5pt,
              fill=amberlt, minimum width=1.1cm, minimum height=0.85cm,
              font=\large\bfseries\color{amber}},
-  lbl/.style={font=\scriptsize\bfseries\color{navy}}
+  lbl/.style={font=\scriptsize\bfseries\color{navy},
+              fill=white, inner sep=2pt, rounded corners=2pt}
 ]
   \node[ent] (h) {Barack Obama};
-  \node[qm, right=2.2cm of h] (q) {?};
+  \node[qm, right=2.5cm of h] (q) {?};
   \node[draw=forest!50, fill=forestlt, rounded corners=4pt,
         inner sep=7pt, align=left, anchor=west]
     at ($(q.east)+(0.3cm,0)$) {%
@@ -182,7 +183,7 @@ most likely to complete the triple?
       \small 3.~Kansas City%
     };
   \draw[->, navy, line width=1.5pt]
-    (h) -- node[lbl, above]{\small born\_in} (q);
+    (h) -- node[lbl]{born\_in} (q);
 \end{tikzpicture}
 \end{center}
 
@@ -319,19 +320,22 @@ Each node is an \textbf{entity}; each labelled edge is a \textbf{fact}.
   ent/.style={draw=navy, line width=1pt, rounded corners=5pt,
               fill=iceblue, inner xsep=7pt, inner ysep=5pt,
               font=\small\bfseries, align=center},
-  lbl/.style={font=\scriptsize\itshape, fill=white, inner sep=2pt,
+  obamastyle/.style={draw=navy, line width=1.6pt, rounded corners=5pt,
+              fill=iceblue, inner xsep=7pt, inner ysep=5pt,
+              font=\small\bfseries, align=center},
+  lbl/.style={font=\scriptsize\itshape, fill=white, inner sep=2.5pt,
               text=secblue, rounded corners=2pt}
 ]
-  \node[ent] (obama)  at (3.5cm,  0cm)   {Barack Obama};
-  \node[ent] (usa)    at (0cm,    2.3cm)  {United States};
-  \node[ent] (hono)   at (7.0cm,  2.3cm)  {Honolulu};
-  \node[ent] (hawaii) at (7.0cm,  0cm)    {Hawai'i};
-  \node[ent] (pol)    at (0cm,   -2.0cm)  {Politician};
-  \draw[->] (obama) -- node[lbl, above left=-3pt]  {nationality} (usa);
-  \draw[->] (obama) -- node[lbl, above right=-3pt] {born\_in}    (hono);
-  \draw[->] (obama) -- node[lbl, below]             {lives\_in}   (hawaii);
-  \draw[->] (obama) -- node[lbl, below left=-3pt]  {occupation}  (pol);
-  \draw[->] (hono)  -- node[lbl, right]             {part\_of}    (hawaii);
+  \node[obamastyle] (obama)  at ( 0cm,    0cm)   {Barack Obama};
+  \node[ent]        (usa)    at (-5.0cm,  2.6cm) {United States};
+  \node[ent]        (hono)   at ( 5.0cm,  2.6cm) {Honolulu};
+  \node[ent]        (pol)    at (-5.0cm, -2.6cm) {Politician};
+  \node[ent]        (hawaii) at ( 5.0cm, -2.6cm) {Hawai'i};
+  \draw[->] (obama) -- node[lbl, pos=0.45] {nationality} (usa);
+  \draw[->] (obama) -- node[lbl, pos=0.45] {born\_in}    (hono);
+  \draw[->] (obama) -- node[lbl, pos=0.45] {occupation}  (pol);
+  \draw[->] (obama) -- node[lbl, pos=0.45] {lives\_in}   (hawaii);
+  \draw[->] (hono)  -- node[lbl, right]    {part\_of}    (hawaii);
 \end{tikzpicture}
 \end{center}
 
