@@ -1,6 +1,7 @@
 %% ============================================================
 %% Hard Negative Mining for KG Link Prediction — A1 Poster
-%% Compile TWICE:  pdflatex poster.tex  (TikZ overlays need 2 passes)
+%% Redesigned for broad audience: visuals > formulas
+%% Compile TWICE: pdflatex poster.tex
 %% ============================================================
 \documentclass[final]{beamer}
 
@@ -16,30 +17,38 @@
 
 %% ── Packages ────────────────────────────────────────────────
 \usepackage{tikz}
-\usetikzlibrary{calc, arrows.meta, positioning}
+\usetikzlibrary{calc, arrows.meta, positioning, backgrounds}
 \usepackage{graphicx}
 \usepackage{ragged2e}
-\usepackage{amsmath, amssymb}
 \usepackage{booktabs}
 \usepackage{helvet}
 \renewcommand{\familydefault}{\sfdefault}
-\hfuzz=30pt
+\hfuzz=50pt
 \overfullrule=0pt
 
-%% ── Colours ─────────────────────────────────────────────────
-\definecolor{posterblue}{HTML}{224C9C}
-\definecolor{lightheader}{HTML}{BCD6ED}
+%% ── Colour palette ──────────────────────────────────────────
+\definecolor{navy}{HTML}{1B3A6B}
+\definecolor{midblue}{HTML}{2D6DC7}
+\definecolor{iceblue}{HTML}{EBF3FB}
+\definecolor{hookblue}{HTML}{D0E5F5}
+\definecolor{amber}{HTML}{B06000}
+\definecolor{amberlt}{HTML}{FEF3DC}
+\definecolor{forest}{HTML}{2B6B33}
+\definecolor{forestlt}{HTML}{E5F4E7}
+\definecolor{softgray}{HTML}{F3F4F6}
+\definecolor{warmgray}{HTML}{888888}
 
-%% ── Beamer overrides ────────────────────────────────────────
 \setbeamercolor{background canvas}{bg=white}
 \setbeamercolor{normal text}{fg=black}
 
 %% ── Layout constants ────────────────────────────────────────
 \newlength{\headerH}  \setlength{\headerH}{8.0cm}
+\newlength{\hookH}    \setlength{\hookH}{2.8cm}
 \newlength{\footerH}  \setlength{\footerH}{3.5cm}
-\newlength{\bodyGap}  \setlength{\bodyGap}{0.5cm}
+\newlength{\bodyGap}  \setlength{\bodyGap}{0.8cm}
 \newlength{\bodySpacer}
   \setlength{\bodySpacer}{\headerH}
+  \addtolength{\bodySpacer}{\hookH}
   \addtolength{\bodySpacer}{\bodyGap}
 
 %%  Column widths: 1.5 + 25.7 + 5.0 + 25.7 + 1.5 = 59.4 cm
@@ -48,21 +57,32 @@
 \newlength{\gapW}   \setlength{\gapW}{5.0cm}
 
 %% ── Section header chip ─────────────────────────────────────
-\newcommand{\secheader}[1]{%
-  \vspace*{0.35cm}%
-  \noindent{%
-    \setlength{\fboxsep}{4pt}%
-    \colorbox{lightheader}{%
-      \textbf{\fontsize{24}{30}\selectfont\strut #1}%
-    }%
-  }\par\vspace{0.18cm}%
+\newcommand{\secheader}[2][midblue]{%
+  \vspace*{0.40cm}%
+  \noindent\colorbox{#1}{\hspace{6pt}%
+    \textcolor{white}{\fontsize{21}{26}\selectfont\bfseries\strut #2}%
+  \hspace{6pt}}\par\vspace{0.22cm}%
 }
 
-%% ── Column separator ────────────────────────────────────────
+%% ── Column divider ──────────────────────────────────────────
 \newcommand{\colsep}{%
-  \par\vspace{0.15cm}%
-  \noindent\textcolor{posterblue!20}{\rule{\linewidth}{0.5pt}}%
+  \par\vspace{0.3cm}%
+  \noindent\textcolor{midblue!20}{\rule{\linewidth}{0.5pt}}%
   \par\vspace{0.05cm}%
+}
+
+%% ── Numbered step (left col pipeline) ──────────────────────
+\newcommand{\step}[2]{%
+  \par\vspace{4pt}\noindent%
+  \begin{tikzpicture}[baseline=(num.base)]
+    \node[
+      circle, fill=navy, text=white,
+      inner sep=0pt, minimum size=0.55cm,
+      font=\bfseries\small
+    ] (num) {\phantom{0}#1\phantom{0}};
+  \end{tikzpicture}%
+  \hspace{5pt}\parbox[t]{21.5cm}{#2}%
+  \par%
 }
 
 %% ============================================================
@@ -70,10 +90,10 @@
 \begin{frame}[t]{}
 
 %% ════════════════════════════════════════════════════════════
-%% HEADER — TikZ overlay, anchored to page top
+%% HEADER
 %% ════════════════════════════════════════════════════════════
 \begin{tikzpicture}[remember picture, overlay]
-  \fill[posterblue]
+  \fill[navy]
     (current page.north west) rectangle
     ([yshift=-\headerH]current page.north east);
 
@@ -85,19 +105,33 @@
     ($(current page.north west)+(17.5cm,-0.5\headerH)$) {
       \begin{minipage}[c][\headerH][c]{41.5cm}
         \color{white}%
-        {\fontsize{40}{48}\selectfont\bfseries
-          Hard Negative Mining for Knowledge Graph\\[0.15cm]
-          Link Prediction: A Controlled Ablation on FB15k-237}\\[0.45cm]
-        {\fontsize{26}{32}\selectfont
-          Thalia Delhaise (66081)\enspace\textbullet\enspace
-          Lenny Briclet (66081)\enspace\textbullet\enspace
-          Andr\'e Fonseca (66081)\enspace\textbullet\enspace
-          Rafael Gufler (66081)}\\[0.35cm]
-        {\fontsize{18}{22}\selectfont
-          RC2526 Knowledge Graphs\enspace\textbullet\enspace
-          Deep Learning 2024/2025\enspace\textbullet\enspace
-          Universidade de Lisboa}%
+        {\fontsize{38}{46}\selectfont\bfseries
+          Hard Negative Mining for Knowledge Graph\\[0.1cm]
+          Link Prediction: A Controlled Study on FB15k-237}\\[0.4cm]
+        {\fontsize{23}{28}\selectfont
+          Thalia Delhaise\enspace$\cdot$\enspace
+          Lenny Briclet\enspace$\cdot$\enspace
+          Andr\'e Fonseca\enspace$\cdot$\enspace
+          Rafael Gufler}\\[0.3cm]
+        {\fontsize{17}{21}\selectfont
+          RC2526 Knowledge Graphs\enspace$\cdot$\enspace
+          Universidade de Lisboa\enspace$\cdot$\enspace 2024/2025}%
       \end{minipage}
+    };
+\end{tikzpicture}
+
+%% ════════════════════════════════════════════════════════════
+%% HOOK BAND
+%% ════════════════════════════════════════════════════════════
+\begin{tikzpicture}[remember picture, overlay]
+  \fill[hookblue]
+    ([yshift=-\headerH]current page.north west) rectangle
+    ([yshift=-\headerH-\hookH]current page.north east);
+  \node[anchor=center, text width=52cm, align=center] at
+    ([yshift=-\headerH-0.5\hookH]current page.north) {%
+      \color{navy}\fontsize{25}{30}\selectfont\itshape
+      Can training on smarter mistakes teach an AI to reason better
+      over real-world facts?%
     };
 \end{tikzpicture}
 
@@ -115,165 +149,155 @@
 \begin{column}{\colW}
 \RaggedRight
 
-%% ── Background ───────────────────────────────────────────────
-\secheader{Background: Link Prediction}
+%% ── 1. What is a Knowledge Graph ─────────────────────────────
+\secheader{What is a Knowledge Graph?}
 
-A \textbf{knowledge graph} (KG) is a directed multi-relational graph
-$\mathcal{G}=(\mathcal{E},\mathcal{R},\mathcal{T})$ where each triple
-$(h,r,t)$ encodes a binary fact.
-\textbf{Link prediction} asks: given $(h,r,?)$, rank all
-$|\mathcal{E}|$ candidate entities by plausibility.
-The standard metric is \textbf{MRR} (mean reciprocal rank of the
-correct entity in the filtered ranking).
+A \textbf{knowledge graph} (KG) is a structured network of real-world facts.
+Each fact is stored as a simple triple: \textbf{(subject, relation, object)}.
+Google, Siri, Netflix, and Wikipedia all rely on knowledge graphs behind the scenes.
+
+\vspace{0.3cm}
+\begin{center}
+\begin{tikzpicture}[
+  >=Stealth,
+  ent/.style={
+    draw=navy, line width=1.2pt, rounded corners=6pt,
+    fill=iceblue, inner xsep=8pt, inner ysep=6pt,
+    font=\small\bfseries, align=center
+  },
+  lbl/.style={font=\scriptsize\itshape, fill=white,
+              inner sep=2pt, text=midblue, rounded corners=2pt}
+]
+  \node[ent] (obama)  at (4.2cm,  0cm)   {Barack Obama};
+  \node[ent] (usa)    at (0cm,    2.6cm)  {United States};
+  \node[ent] (hono)   at (8.5cm,  2.6cm)  {Honolulu};
+  \node[ent] (hawaii) at (8.5cm,  0cm)    {Hawai'i};
+  \node[ent] (pol)    at (4.2cm, -2.2cm)  {Politician};
+  \node[ent] (dem)    at (0cm,   -2.2cm)  {Democrat};
+  \draw[->] (obama) -- node[lbl, above left]  {nationality} (usa);
+  \draw[->] (obama) -- node[lbl, above right] {born\_in}    (hono);
+  \draw[->] (obama) -- node[lbl, right]       {lives\_in}   (hawaii);
+  \draw[->] (obama) -- node[lbl, below right] {occupation}  (pol);
+  \draw[->] (obama) -- node[lbl, below left]  {party}       (dem);
+  \draw[->] (hono)  -- node[lbl, right]       {part\_of}    (hawaii);
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.1cm}
+{\small\color{midblue}%
+  \textbf{We use FB15k-237:} 272,115 training facts, 14,505 entities,
+  237 relation types, sourced from Freebase.}
+
+\colsep
+
+%% ── 2. Predicting Missing Links ──────────────────────────────
+\secheader{Predicting Missing Links}
+
+KGs are always \textit{incomplete}: facts are missing.
+\textbf{Link prediction} is the task of automatically completing the graph
+by ranking all candidate answers for a given query.
 
 \vspace{0.25cm}
 \begin{center}
-\begin{tikzpicture}[
-  >=Stealth, font=\small,
-  ent/.style={draw, rounded corners=4pt, fill=posterblue!10,
-              minimum height=0.65cm, inner xsep=6pt, align=center},
-  qnode/.style={draw=posterblue, line width=2pt, rounded corners=4pt,
-                fill=yellow!22, minimum size=0.9cm,
-                align=center, font=\normalsize\bfseries},
-  lbl/.style={font=\footnotesize\itshape, inner sep=2pt},
-]
-  \node[ent] (obama) at (0,0) {Barack Obama};
-  \node[ent] (usa)   at (0, 1.5) {United States};
-  \node[ent] (pol)   at (0,-1.5) {Politician};
-  \node[qnode](q)    at (6.0, 0) {?};
-  \draw[->] (obama) -- node[lbl,right]{nationality} (usa);
-  \draw[->] (obama) -- node[lbl,right]{occupation}  (pol);
-  \draw[->, posterblue, line width=2pt]
-    (obama) -- node[lbl,above,text=posterblue]{\textbf{born\_in}} (q);
-  \node[draw=posterblue!40, rounded corners=3pt, fill=white,
-        anchor=west, align=left, inner sep=5pt] at ($(q.east)+(0.25cm,0)$) {%
-    \textbf{Ranking:}\\[2pt]
-    \textcolor{green!55!black}{\textbf{1.}\;Honolulu\;$\checkmark$}\\[1pt]
-    2.\;Kansas City\\[1pt]
-    3.\;Chicago%
+\begin{tikzpicture}[>=Stealth, font=\small]
+  \node[
+    draw=navy, line width=1pt, rounded corners=6pt,
+    fill=iceblue, inner xsep=8pt, inner ysep=6pt,
+    font=\small\bfseries
+  ] (h) {Barack Obama};
+  %
+  \node[
+    draw=amber, line width=2pt, rounded corners=6pt,
+    fill=amberlt, minimum width=1.1cm, minimum height=0.9cm,
+    font=\Large\bfseries\color{amber}, right=2.5cm of h
+  ] (q) {?};
+  %
+  \draw[->, navy, line width=1.8pt]
+    (h) -- node[above, font=\scriptsize\bfseries\color{navy}]{born\_in} (q);
+  %
+  \node[
+    draw=forest!50, fill=forestlt, rounded corners=5pt,
+    inner sep=8pt, align=left, anchor=west
+  ] at ($(q.east)+(0.35cm,0)$) {%
+    {\small\bfseries\color{forest} AI ranking:}\\[4pt]
+    \textcolor{forest}{\bfseries 1.~Honolulu~\checkmark}\\[2pt]
+    \small 2.~Chicago\\[2pt]
+    \small 3.~Kansas City%
   };
 \end{tikzpicture}
 \end{center}
 
-\vspace{0.1cm}
-Training requires \emph{negative} triples (false facts).
-\textbf{Random} Bernoulli corruption yields easy negatives after a few
-epochs --- gradient signal collapses.
-\textbf{Hard negatives} (triples the model still scores highly) carry
-more information but risk instability if used alone.
+\vspace{0.2cm}
+We measure quality with \textbf{MRR} (Mean Reciprocal Rank): if the right
+answer ranks 1st the score is 1.0; if 2nd, it is 0.5; and so on.
+Higher MRR means better predictions.
 
 \colsep
 
-%% ── Dataset ──────────────────────────────────────────────────
-\secheader{Dataset: FB15k-237}
+%% ── 3. Teaching AI with Wrong Answers ────────────────────────
+\secheader{Teaching AI with Wrong Answers}
 
-\begin{center}
-{\small
-\begin{tabular}{@{}lr@{}}
-\toprule
-Property & Value \\
-\midrule
-Entities            & 14,505     \\
-Relations           & 237        \\
-Train triples       & 272,115    \\
-Val / Test triples  & 17,526 / 20,438 \\
-Mean out-degree     & 19.7       \\
-Relation freq.\ range & 37\,--\,15,989 \\
-\bottomrule
-\end{tabular}
-}
-\end{center}
+Models learn by contrasting correct facts with \textit{fabricated wrong facts}
+(negatives). The quality of these negatives determines how much the model learns
+at each training step.
 
-\vspace{0.1cm}
-{\small Relation frequencies span \textbf{three orders of magnitude},
-motivating Bernoulli side-choice and stratified slice evaluation across
-rare, medium, and frequent relation buckets.}
-
-\colsep
-
-%% ── Models & Setup ───────────────────────────────────────────
-\secheader{Models \& Training Setup}
-
-\textbf{TransE:}\ $f(h,r,t)=-\|\mathbf{h}+\mathbf{r}-\mathbf{t}\|_2$
-\hfill(translation in $\mathbb{R}^d$)
-
-\vspace{0.15cm}
-\textbf{RotatE:}\ $f(h,r,t)=-\|\mathbf{h}\circ\mathbf{r}-\mathbf{t}\|$,\
-$|r_k|{=}1$ \hfill(rotation in $\mathbb{C}^d$)
-
-\vspace{0.15cm}
-\textbf{NSSALoss} (self-adversarial):
-\[
-\mathcal{L}=-\log\sigma(\gamma-f_+)
-  -\sum_i p_i\log\sigma(f_i'-\gamma)
-\]
-where $p_i=e^{\alpha f_i'}/\sum_j e^{\alpha f_j'}$ (margin $\gamma{=}9.0$,
-temp.\ $\alpha{=}1.0$).
-Hard negatives get higher weight $p_i$, amplifying gradient signal.
-
-\vspace{0.15cm}
-{\small \textbf{All runs:} $d=128$, batch 1024, Adam lr$=10^{-3}$,
-50 epochs (patience 10), seed 42, $n=64$ pool, $k=8$ negs/positive.}
-
-\colsep
-
-%% ── Pipeline ─────────────────────────────────────────────────
-\secheader{Two-Stage Negative Sampling}
-
-\vspace{0.12cm}
-\begin{center}
-\begin{tikzpicture}[
-  node distance=0.38cm and 0.45cm,
-  font=\small, >=Latex,
-  box/.style={draw, align=center, inner sep=3pt, rounded corners=3pt,
-              minimum width=3.0cm, minimum height=0.72cm,
-              fill=posterblue!9, draw=posterblue!50},
-  stg/.style={font=\scriptsize\bfseries, text=posterblue},
-]
-  \node[box] (pos)    {Positive\\$(h,r,t)$};
-  \node[box, right=0.45cm of pos]  (bern)  {Bernoulli\\side};
-  \node[box, right=0.45cm of bern] (pool)  {Pool $n{=}64$\\candidates};
-  \node[box, below=0.45cm of pool] (score) {Score with\\$f_\theta$};
-  \node[box, left=0.45cm of score] (sel)   {Select $k{=}8$\\strategy};
-  \node[box, left=0.45cm of sel]   (loss)  {NSSA\\Loss};
-  \path[->]
-    (pos) edge (bern) (bern) edge (pool) (pool) edge (score)
-    (score) edge (sel) (sel) edge (loss);
-  \node[stg, above=0.05cm of pos]  {Stage 1};
-  \node[stg, above=0.05cm of pool] {Stage 1};
-  \node[stg, below=0.05cm of score]{Stage 2};
-  \node[stg, below=0.05cm of loss] {Stage 2};
+\vspace{0.3cm}
+\noindent
+\begin{minipage}[t]{11.8cm}
+\begin{tikzpicture}
+  \node[
+    draw=black!25, fill=softgray, rounded corners=7pt,
+    inner sep=11pt, text width=10.5cm, align=left
+  ] {%
+    {\small\bfseries\color{warmgray}\textsc{Random negatives} (standard)}\\[7pt]
+    \quad Obama \textrightarrow\ born\_in \textrightarrow\
+      \textit{Ice cream}\\[3pt]
+    \quad Obama \textrightarrow\ born\_in \textrightarrow\
+      \textit{Mt.\ Everest}\\[3pt]
+    \quad Obama \textrightarrow\ born\_in \textrightarrow\
+      \textit{Atlantic Ocean}\\[8pt]
+    {\small\color{warmgray}\textit{Obviously wrong.
+      The model stops improving after a few epochs.}}%
+  };
 \end{tikzpicture}
-\end{center}
+\end{minipage}%
+\hfill%
+\begin{minipage}[t]{11.8cm}
+\begin{tikzpicture}
+  \node[
+    draw=amber, line width=1.5pt, fill=amberlt,
+    rounded corners=7pt, inner sep=11pt,
+    text width=10.5cm, align=left
+  ] {%
+    {\small\bfseries\color{amber}\textsc{Hard negatives} (our method)}\\[7pt]
+    \quad Obama \textrightarrow\ born\_in \textrightarrow\
+      \textit{Chicago}\\[3pt]
+    \quad Obama \textrightarrow\ born\_in \textrightarrow\
+      \textit{Kansas City}\\[3pt]
+    \quad Obama \textrightarrow\ born\_in \textrightarrow\
+      \textit{Honolulu}\textsuperscript{*}\\[8pt]
+    {\small\color{amber!80!black}\textit{Plausible but wrong.
+      The model keeps improving.}}%
+  };
+\end{tikzpicture}
+\end{minipage}
 
-\vspace{0.1cm}
-\textbf{Stage~1:} Bernoulli corruption draws $n{=}64$ candidates,
-filtering known-true triples.\\[3pt]
-\textbf{Stage~2:} selects $k{=}8$ via \textbf{Random} (control),
-\textbf{Hard} (top-$k$ by $f_\theta$), or \textbf{Mixed $p$}
-($p\in\{0.3,0.5,0.7\}$).
-All strategies use the same pool --- \textbf{zero extra compute cost}.
+\vspace{0.25cm}
+{\small\textsuperscript{*}Honolulu \emph{is} the right answer here,
+which makes it the hardest possible negative to distinguish.}
 
-\colsep
-
-%% ── Conclusions ──────────────────────────────────────────────
-\secheader{Conclusions}
-
-\begin{itemize}\setlength{\itemsep}{4pt}
-  \item \textbf{Hard negatives $+$10.4\% MRR} over random sampling,
-    consistent across all metrics and reproducible with seed 42.
-  \item \textbf{Mixed 30\% recovers 95\% of the gain} at zero
-    extra compute; recommended default for practitioners.
-  \item \textbf{Gains concentrate on rare relations} ($+$3.6 pp)
-    and high-degree tail entities, where hard negatives maximise
-    gradient information density.
-  \item \textbf{Future:} curriculum scheduling of $p$; apply to
-    RESCAL and TuckER; test on Wikidata-5M scale.
-\end{itemize}
+\vspace{0.25cm}
+{\small
+\textbf{Our two-stage pipeline:}%
+\step{1}{Generate 64 random candidate wrong answers (Bernoulli corruption).}%
+\step{2}{Select the 8 most informative ones using a \textbf{strategy}:
+  \textbf{Random} (control), \textbf{Hard} (top-scoring by the model),
+  or \textbf{Mixed} (blend of both). Zero extra compute.}%
+}
 
 \end{column}
 
-%% Gap ────────────────────────────────────────────────────────
+%% Gap ─────────────────────────────────────────────────────────
 \begin{column}{\gapW}\end{column}
 
 %% ─────────────────────────────────────────────────────────────
@@ -282,75 +306,111 @@ All strategies use the same pool --- \textbf{zero extra compute cost}.
 \begin{column}{\colW}
 \RaggedRight
 
-%% ── Results ──────────────────────────────────────────────────
-\secheader{Main Results: Hard Negatives +10.4\% MRR}
+%% ── KEY RESULT ───────────────────────────────────────────────
+\secheader[amber]{Key Result}
+
+\vspace{0.2cm}
+\begin{tikzpicture}
+  \node[
+    fill=amberlt, draw=amber, line width=2.5pt,
+    rounded corners=9pt, inner sep=16pt,
+    text width=23.5cm, align=center
+  ] {%
+    {\fontsize{62}{70}\selectfont\bfseries\color{amber}+10.4\,\%}\\[5pt]
+    {\fontsize{19}{24}\selectfont\bfseries\color{navy}
+      accuracy improvement (MRR) using Hard negatives\\
+      compared to standard random negative sampling}\\[14pt]
+    {\small
+    \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    Strategy          & MRR            & H@1            & H@3            & H@10  \\
+    \midrule
+    Random (baseline) & 0.270          & 0.189          & 0.300          & 0.428 \\
+    Hard              & 0.298          & 0.217          & 0.327          & 0.459 \\
+    Mixed 30\%        & 0.297          & 0.215          & 0.326          & 0.459 \\
+    Mixed 50\%        & 0.298          & 0.216          & 0.328          & 0.460 \\
+    Mixed 70\%        & \textbf{0.299} & \textbf{0.217} & \textbf{0.328} & \textbf{0.461} \\
+    \bottomrule
+    \end{tabular}}\\[12pt]
+    \colorbox{forest}{\textcolor{white}{\small\bfseries
+      \quad Mixed 30\% hard recovers 95\% of the gain at zero extra cost.\quad}}%
+  };
+\end{tikzpicture}
+
+\vspace{0.4cm}
+
+%% ── Learning Dynamics ────────────────────────────────────────
+\secheader{How It Plays Out Over 50 Epochs}
 
 \begin{center}
-  \includegraphics[height=9.5cm]{figures/mrr_bar}
+  \includegraphics[width=0.97\linewidth]{figures/val_mrr_curves}
 \end{center}
 
-\vspace{0.1cm}
-{\small
-\begin{center}
-\begin{tabular}{@{}lcccc@{}}
-\toprule
-Strategy          & MRR            & H@1            & H@3            & H@10  \\
-\midrule
-Random (control)  & 0.270          & 0.189          & 0.300          & 0.428 \\
-Hard              & 0.298          & \textbf{0.217} & 0.327          & 0.459 \\
-Mixed 30\%        & 0.297          & 0.215          & 0.326          & 0.459 \\
-Mixed 50\%        & 0.298          & 0.216          & \textbf{0.328} & 0.460 \\
-Mixed 70\%        & \textbf{0.299} & \textbf{0.217} & \textbf{0.328} & \textbf{0.461} \\
-\midrule
-$\Delta$ hard\,--\,random &
-  +0.028 & +0.028 & +0.026 & +0.031 \\
-\bottomrule
-\end{tabular}
-\end{center}
-}
-
-\vspace{0.1cm}
-All runs trained to the full 50-epoch budget.
-\textbf{Mixed 30\%} recovers \textbf{95\%} of the pure-hard gain
-($\Delta_\text{mix30}=0.0266$ vs.\ $\Delta_\text{hard}=0.0280$).
+\vspace{0.05cm}
+{\small Hard and mixed strategies \textbf{pull ahead from random after
+epoch~15} and reach a consistently higher plateau, with no training
+instability.}
 
 \colsep
 
-%% ── Learning Dynamics + Slice side by side ───────────────────
-\secheader{Learning Dynamics \& Slice Evaluation}
+%% ── Slice results ────────────────────────────────────────────
+\secheader{Where Does the Gain Come From?}
 
-\begin{minipage}[t]{0.475\linewidth}
-  \sloppy\centering
-  \includegraphics[height=8.5cm]{figures/val_mrr_curves}
+{\small Hard negatives benefit \emph{every} part of the dataset,
+but the effect is strongest for \textbf{rare relations}, where random
+negatives are least informative.}
 
-  \vspace{0.08cm}
-  {\small Hard/mixed strategies \textbf{separate from random by
-  epoch~15} and converge to a 7--8\% higher plateau with no
-  instability.}
-\end{minipage}%
-\hfill%
-\begin{minipage}[t]{0.475\linewidth}
-  \sloppy\centering
-  \includegraphics[height=8.5cm]{figures/slice_rel_freq}
+\vspace{0.3cm}
+\begin{center}
+\begin{tikzpicture}[node distance=0.8cm, font=\small]
+  \node[
+    fill=forestlt, draw=forest, line width=1.2pt,
+    rounded corners=6pt, inner sep=10pt,
+    minimum width=7.0cm, minimum height=3.2cm, align=center
+  ] (rare) {%
+    {\fontsize{28}{33}\selectfont\bfseries\color{forest}+3.6\,pp}\\[5pt]
+    \textbf{Rare relations}\\[2pt]
+    {\footnotesize\color{warmgray} 0.382 $\to$ 0.418}%
+  };
+  \node[
+    fill=iceblue, draw=midblue, line width=1.2pt,
+    rounded corners=6pt, inner sep=10pt,
+    minimum width=7.0cm, minimum height=3.2cm, align=center,
+    right=0.8cm of rare
+  ] (med) {%
+    {\fontsize{28}{33}\selectfont\bfseries\color{midblue}+3.0\,pp}\\[5pt]
+    \textbf{Medium relations}\\[2pt]
+    {\footnotesize\color{warmgray} 0.332 $\to$ 0.362}%
+  };
+  \node[
+    fill=softgray, draw=black!22, line width=1.2pt,
+    rounded corners=6pt, inner sep=10pt,
+    minimum width=7.0cm, minimum height=3.2cm, align=center,
+    right=0.8cm of med
+  ] (freq) {%
+    {\fontsize{28}{33}\selectfont\bfseries\color{warmgray}+2.8\,pp}\\[5pt]
+    \textbf{Frequent relations}\\[2pt]
+    {\footnotesize\color{warmgray} 0.257 $\to$ 0.285}%
+  };
+\end{tikzpicture}
+\end{center}
 
-  \vspace{0.08cm}
-  {\small \textbf{Rare relations gain most (+3.6 pp).}
-  Hard/Mixed dominate random in \emph{every} slice: relation
-  frequency, head out-degree, tail in-degree.}
-\end{minipage}
+\colsep
 
-\vspace{0.2cm}
-{\small
-\begin{tabular}{@{}lccc@{}}
-\toprule
-Strategy   & Rare ($+$3.6 pp) & Medium ($+$3.0 pp) & Frequent ($+$2.8 pp) \\
-\midrule
-Random     & 0.382 & 0.332 & 0.257 \\
-Hard       & \textbf{0.418} & \textbf{0.362} & 0.284 \\
-Mixed 70\% & 0.416 & 0.362 & \textbf{0.285} \\
-\bottomrule
-\end{tabular}
-}
+%% ── Conclusions ──────────────────────────────────────────────
+\secheader{Take-Aways}
+
+\begin{itemize}\setlength{\itemsep}{7pt}
+  \item \textbf{Smarter negatives, free upgrade:} the hard negative strategy
+    requires no extra computation — only a smarter selection from the same pool.
+  \item \textbf{You don't need 100\% hard:} Mixed 30\% (roughly 2 hard
+    examples per 8) recovers 95\% of the accuracy gain with greater
+    training stability.
+  \item \textbf{Rare facts benefit most,} exactly where knowledge graph
+    completion is hardest and most valuable in practice.
+  \item \textbf{Next steps:} dynamically adjust the hard fraction during
+    training; scale experiments to Wikidata-5M.
+\end{itemize}
 
 \end{column}
 
@@ -358,10 +418,10 @@ Mixed 70\% & 0.416 & 0.362 & \textbf{0.285} \\
 \end{columns}
 
 %% ════════════════════════════════════════════════════════════
-%% FOOTER — TikZ overlay, anchored to page bottom
+%% FOOTER
 %% ════════════════════════════════════════════════════════════
 \begin{tikzpicture}[remember picture, overlay]
-  \fill[posterblue]
+  \fill[navy]
     (current page.south west) rectangle
     ([yshift=\footerH]current page.south east);
 
