@@ -43,15 +43,15 @@
 %% ── Layout constants ────────────────────────────────────────
 \newlength{\headerH}  \setlength{\headerH}{7.5cm}
 \newlength{\footerH}  \setlength{\footerH}{3.5cm}
-\newlength{\bodyGap}  \setlength{\bodyGap}{0.7cm}
+\newlength{\bodyGap}  \setlength{\bodyGap}{0.1cm}
 \newlength{\bodySpacer}
   \setlength{\bodySpacer}{\headerH}
   \addtolength{\bodySpacer}{\bodyGap}
 
-%%  Column widths: 1.5 + 25.7 + 5.0 + 25.7 + 1.5 = 59.4 cm
+%%  Column widths: 1.5 + 26.95 + 2.5 + 26.95 + 1.5 = 59.4 cm
 \newlength{\lrPad}  \setlength{\lrPad}{1.5cm}
-\newlength{\colW}   \setlength{\colW}{25.7cm}
-\newlength{\gapW}   \setlength{\gapW}{5.0cm}
+\newlength{\colW}   \setlength{\colW}{26.95cm}
+\newlength{\gapW}   \setlength{\gapW}{2.5cm}
 
 %% ── Full-width section header (template style) ──────────────
 %% Spans exactly \linewidth using a fixed-height minipage inside colorbox
@@ -97,11 +97,11 @@
     ($(current page.south west)+(0.7cm,\footerH+0.3cm)$) {};  %% placeholder
 
   \node[anchor=south west, inner sep=0pt] at
-    ($(current page.north west)+(0.7cm,-\headerH+0.35cm)$) {%
+    ($(current page.north west)+(1.2cm,-\headerH+1cm)$) {%
       \begin{minipage}[c]{13cm}
         \color{white}%
         {\fontsize{14}{18}\selectfont
-          Knowledge Graphs and Deep Learning courses\\[2pt]}%
+          Knowledge Graphs and Deep Learning Courses 2026\\[2pt]}%
       \end{minipage}%
     };
 
@@ -225,18 +225,18 @@ Models learn by comparing correct triples against \textit{negatives}
 %% ── Motivation ───────────────────────────────────────────────
 \secheader{Motivation}
 
-\textbf{Random negatives} (gray box above) become trivial after a few
-epochs: the model rejects them easily, so the \textbf{gradient signal
-vanishes} and learning plateaus.
+\textbf{Random negatives} become trivial after a few epochs: the model
+rejects them easily, so the \textbf{gradient signal vanishes} and
+learning plateaus.
 
-\vspace{0.18cm}
-\textbf{Hard negatives} (amber box) keep the model challenged, but
-training only on them can destabilise learning.
+\vspace{0.12cm}
+\textbf{Hard negatives} keep the model challenged throughout training,
+but using them exclusively can destabilise learning.
+\textbf{A mixed strategy} combines both.
 
-\vspace{0.18cm}
-\textbf{Our research question.} Can a \textbf{mixture} of random and
-hard negatives combine the accuracy of hard with the stability of
-random --- and what is the best proportion?
+\vspace{0.12cm}
+\textbf{Question:} What mixture gives the best accuracy--stability
+trade-off on FB15k-237?
 
 %% ── Methodology ──────────────────────────────────────────────
 \secheader{Methodology}
@@ -283,17 +283,13 @@ Common setup: RotatE, embedding dim~128, batch~1024, Adam lr$=10^{-3}$,
 %% ── References ───────────────────────────────────────────────
 \secheader{References}
 
-{\footnotesize\setlength{\itemsep}{3pt}
-\begin{enumerate}
-\item[{[1]}] Sun~\textit{et al.}\ (2019).
-  \textit{RotatE: Knowledge Graph Embedding by Relational Rotation
-  in Complex Space.} ICLR 2019.
-\item[{[2]}] Cai \& Wang (2018).
-  \textit{KBGAN: Adversarial Learning for Knowledge Graph Embeddings.}
-  NAACL 2018.
-\item[{[3]}] Toutanova \& Chen (2015).
-  \textit{Observed versus latent features for KB and text inference.}
-  ACL Workshop 2015 (FB15k-237 dataset).
+{\footnotesize
+\begin{enumerate}\setlength{\itemsep}{2pt}
+\item[{[1]}] Sun~\textit{et al.}\ (2019). \textit{RotatE.} ICLR 2019.
+\item[{[2]}] Wang~\textit{et al.}\ (2014). \textit{Knowledge Graph Embedding
+  by Translating on Hyperplanes (Bernoulli sampler).} AAAI 2014.
+\item[{[3]}] Toutanova \& Chen (2015). \textit{FB15k-237 dataset.}
+  ACL Workshop 2015.
 \end{enumerate}
 }
 
@@ -311,46 +307,18 @@ Common setup: RotatE, embedding dim~128, batch~1024, Adam lr$=10^{-3}$,
 %% ── Datasets ─────────────────────────────────────────────────
 \secheader{Datasets}
 
-\textbf{FB15k-237} is a widely used benchmark knowledge graph
-derived from Freebase, covering people, places, films, and organisations.
-Each node is an \textbf{entity}; each labelled edge is a \textbf{fact}.
-
-\vspace{0.25cm}
-\begin{center}
-\begin{tikzpicture}[
-  >=Stealth,
-  ent/.style={draw=navy, line width=1pt, rounded corners=5pt,
-              fill=iceblue, inner xsep=7pt, inner ysep=5pt,
-              font=\small\bfseries, align=center},
-  obamastyle/.style={draw=navy, line width=1.6pt, rounded corners=5pt,
-              fill=iceblue, inner xsep=7pt, inner ysep=5pt,
-              font=\small\bfseries, align=center},
-  lbl/.style={font=\scriptsize\itshape, fill=white, inner sep=2.5pt,
-              text=secblue, rounded corners=2pt}
-]
-  \node[obamastyle] (obama)  at ( 0cm,    0cm)   {Barack Obama};
-  \node[ent]        (usa)    at (-5.0cm,  2.6cm) {United States};
-  \node[ent]        (hono)   at ( 5.0cm,  2.6cm) {Honolulu};
-  \node[ent]        (pol)    at (-5.0cm, -2.6cm) {Politician};
-  \node[ent]        (hawaii) at ( 5.0cm, -2.6cm) {Hawai'i};
-  \draw[->] (obama) -- node[lbl, pos=0.45] {nationality} (usa);
-  \draw[->] (obama) -- node[lbl, pos=0.45] {born\_in}    (hono);
-  \draw[->] (obama) -- node[lbl, pos=0.45] {occupation}  (pol);
-  \draw[->] (obama) -- node[lbl, pos=0.45] {lives\_in}   (hawaii);
-  \draw[->] (hono)  -- node[lbl, right]    {part\_of}    (hawaii);
-\end{tikzpicture}
-\end{center}
-
-\vspace{0.1cm}
 {\small
-\begin{tabular}{@{}lr@{\hspace{1.2cm}}lr@{}}
+\textbf{FB15k-237}~[3] — Freebase benchmark, widely used for KG link prediction.
+
+\vspace{0.18cm}
+\begin{tabular}{@{}lr@{\hspace{1.0cm}}lr@{}}
   Entities:       & 14,505 & Train triples: & 272,115 \\
-  Relation types: & 237    & Val / Test:    & 17,526 / 20,438 \\
+  Relation types: & 237    & Val\,/\,Test:  & 17,526\,/\,20,438 \\
 \end{tabular}
 
-\vspace{0.1cm}
-Relation frequencies range over \textbf{three orders of magnitude}
-(37 to 15,989 occurrences), enabling stratified evaluation by rarity.
+\vspace{0.12cm}
+Relation frequencies span \textbf{three orders of magnitude}
+(37–15,989 occurrences), enabling stratified slice evaluation.
 }
 
 %% ── Results ──────────────────────────────────────────────────
@@ -392,59 +360,59 @@ $\Delta$ Hard\,--\,Random & +0.028 & +0.028 & +0.026 & +0.031 \\
 \end{center}
 }
 
+%% ── Key takeaway (one sentence) ─────────────────────────────
 \vspace{0.15cm}
+\begin{center}
+\begin{tikzpicture}
+  \node[fill=navy, rounded corners=6pt, inner sep=10pt,
+        text width=25cm, align=center]{%
+    {\fontsize{15}{19}\selectfont\bfseries\color{white}
+      Hard or mixed negatives improve ranking by \textbf{+10.4\,\%},
+      especially on rare and difficult relation\,/\,entity slices.}%
+  };
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.1cm}
 \noindent\colorbox{forest}{%
   \textcolor{white}{\small\bfseries\,%
     Mixed 30\% hard recovers 95\% of the gain at zero extra cost.\,%
   }%
 }
 
-\vspace{0.35cm}
-\begin{center}
-  \includegraphics[height=11cm, keepaspectratio]{figures/val_mrr_curves}
-\end{center}
-
-{\small Hard and mixed strategies \textbf{pull ahead from random after
-epoch~15} and converge to a 7--8\,\% higher plateau with no
-training instability.}
-
+%% ── Slice evaluation chart ───────────────────────────────────
 \vspace{0.25cm}
-{\small\textbf{Stratified evaluation, MRR gain Hard vs.\ Random:}}
-
-\vspace{0.2cm}
+{\small\textbf{Slice evaluation — MRR by relation frequency (test set, filtered):}}
+\vspace{0.1cm}
 \begin{center}
-\begin{tikzpicture}[font=\small]
-  \node[
-    fill=forestlt, draw=forest, line width=1.2pt, rounded corners=5pt,
-    inner sep=9pt, minimum width=6.5cm, minimum height=3.0cm, align=center
-  ] (rare) {%
-    {\fontsize{26}{30}\selectfont\bfseries\color{forest}+3.6\,pp}\\[5pt]
-    \textbf{Rare relations}\\
-    {\footnotesize\color{warmgray}0.382\,$\to$\,0.418}%
-  };
-  \node[
-    fill=iceblue, draw=secblue, line width=1.2pt, rounded corners=5pt,
-    inner sep=9pt, minimum width=6.5cm, minimum height=3.0cm, align=center,
-    right=0.6cm of rare
-  ] (med) {%
-    {\fontsize{26}{30}\selectfont\bfseries\color{secblue}+3.0\,pp}\\[5pt]
-    \textbf{Medium relations}\\
-    {\footnotesize\color{warmgray}0.332\,$\to$\,0.362}%
-  };
-  \node[
-    fill=softgray, draw=black!20, line width=1.2pt, rounded corners=5pt,
-    inner sep=9pt, minimum width=6.5cm, minimum height=3.0cm, align=center,
-    right=0.6cm of med
-  ] (freq) {%
-    {\fontsize{26}{30}\selectfont\bfseries\color{warmgray}+2.8\,pp}\\[5pt]
-    \textbf{Frequent relations}\\
-    {\footnotesize\color{warmgray}0.257\,$\to$\,0.285}%
-  };
-\end{tikzpicture}
+  \includegraphics[width=\linewidth, keepaspectratio]{figures/slice_rel_freq}
 \end{center}
+{\small Gain is largest on \textbf{rare relations} (+3.6\,pp: 0.382\,$\to$\,0.418)
+where random negatives are least informative.}
 
-{\small Hard negatives benefit \emph{every} slice, but gain is largest
-for \textbf{rare relations} where random negatives are least informative.}
+%% ── Qualitative rank example ─────────────────────────────────
+\vspace{0.2cm}
+{\small\textbf{Qualitative example} — query: (Film,~\texttt{release\_region},~?),
+gold: \textbf{France}}
+
+\vspace{0.1cm}
+\setlength{\fboxsep}{7pt}%
+\colorbox{softgray}{\begin{minipage}{\dimexpr\linewidth-14pt\relax}
+{\small
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Strategy & Rank of France & \\
+\midrule
+Random (control) & 9 & \textcolor{warmgray}{buried} \\
+Hard             & \textbf{1} & \textcolor{forest}{\bfseries $\checkmark$ correct} \\
+Mixed 30\%       & \textbf{1} & \textcolor{forest}{\bfseries $\checkmark$ correct} \\
+Mixed 50\%/70\%  & 3 & \textcolor{secblue}{near top} \\
+\bottomrule
+\end{tabular}
+}\\[3pt]
+{\footnotesize\color{warmgray}%
+Hard training pushes France from rank~9 to rank~1. Even 30\% hard fully recovers it.}%
+\end{minipage}}
 
 %% ── Conclusions ──────────────────────────────────────────────
 \secheader{Conclusions}
