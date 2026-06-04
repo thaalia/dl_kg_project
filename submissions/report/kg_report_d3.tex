@@ -34,18 +34,21 @@ A Controlled Ablation on FB15k-237}
 
 %% ───────────────────────────────── ABSTRACT ──────────────────────────────────
 \begin{abstract}
-We study link prediction on \textbf{FB15k-237} using \textsc{TransE} and
-\textsc{RotatE} as matched baselines, then investigate whether the choice of
+We study link prediction on \textbf{FB15k-237} using TransE and
+RotatE as matched baselines, then investigate whether the choice of
 negative-triple selection strategy during training matters. Our main contribution
 is a \textbf{two-stage negative sampling pipeline} implemented in standalone
 PyTorch: Stage~1 generates a filtered pool of $n\!=\!64$ Bernoulli-corrupted
 candidates (no known-true triple included); Stage~2 selects $k\!=\!8$ training
 negatives using one of three strategies: \emph{random}, \emph{hard}
 (top-$k$ by current model score), or \emph{mixed} (Binomial split).
-Across five controlled runs with all other hyper-parameters fixed,
+Across five controlled RotatE runs with all other hyper-parameters
+fixed (pool size $n=64$, same loss, sampler, splits, seed),
 \textbf{hard-negative selection raises MRR from 0.270 to 0.298 (+10.4\%),
 with the best mixed variant (70\% hard) reaching 0.299};
 a 30\% hard mixture already recovers 95\% of that gain.
+We restrict the causal claim to this controlled setting; transfer to other
+KGE models or larger candidate pools is left for future work.
 Relation-wise slice evaluation shows the largest improvements on
 \emph{rare} relations (+3.6~pp) and \emph{high-degree} tail entities (+2.9~pp).
 Qualitative examples confirm that hard-negative training reduces the rank of
@@ -109,6 +112,13 @@ $|r_k|=1$. After each gradient step the constraint is enforced by
 Rotation composition can model symmetry ($\theta=\pi$), inversion, and
 multi-hop composition, a strict superset of TransE's expressiveness.
 
+\paragraph{Bernoulli corruption~\cite{wang2014knowledge}.}
+For each relation $r$, the head is corrupted with probability
+$p_{\mathrm{head}} = \mathrm{tph}/(\mathrm{tph}+\mathrm{hpt})$,
+where $\mathrm{tph}$ (tails per head) and $\mathrm{hpt}$ (heads per tail)
+are computed from the training split only.
+High-fanout relations corrupt the head more often, reducing false negatives.
+
 \paragraph{NSSALoss~\cite{sun2019rotate}.}
 Self-adversarial negative sampling loss re-weights each negative by its
 current plausibility:
@@ -120,13 +130,6 @@ p_i = \frac{e^{\alpha f_i'}}{\sum_j e^{\alpha f_j'}},
 \label{eq:nssa}
 \end{equation}
 with margin $\gamma=9.0$ and temperature $\alpha=1.0$.
-
-\paragraph{Bernoulli corruption~\cite{wang2014knowledge}.}
-For each relation $r$, the head is corrupted with probability
-$p_{\mathrm{head}} = \mathrm{tph}/(\mathrm{tph}+\mathrm{hpt})$,
-where $\mathrm{tph}$ (tails per head) and $\mathrm{hpt}$ (heads per tail)
-are computed from the training split only.
-High-fanout relations corrupt the head more often, reducing false negatives.
 
 \paragraph{Hard negative mining.}
 Self-adversarial weighting in NSSALoss implicitly up-weights hard negatives.
@@ -142,7 +145,7 @@ strategies balance exploration and exploitation.
 inverse-relation leakage present in the original FB15k benchmark.
 It is the standard evaluation corpus for KGE models.
 
-\begin{table}[h]
+\begin{table}[ht]
 \centering\small
 \caption{FB15k-237 dataset statistics (official split).}
 \label{tab:dataset}
@@ -188,7 +191,7 @@ pipeline across three independently testable modules
 (\texttt{negative\_sampling.py}, \texttt{score\_candidates.py},
 \texttt{select\_candidates.py}):
 
-\begin{figure}[h]
+\begin{figure}[ht]
 \centering
 \begin{tikzpicture}[
   node distance=0.3cm and 0.4cm,
@@ -263,13 +266,21 @@ the \textbf{training split only} to prevent leakage. Results are cached to
 \section{Experimental Results}
 \label{sec:results}
 
-\subsection{Baseline results}
+\subsection{Baseline results (reference, not central claim)}
 
-\begin{table}[h]
+The two PyKEEN baselines below provide a sanity check against published
+KGE results and a reference point for absolute performance levels;
+the \emph{central controlled claim} of this report is the custom strategy
+ablation in Section~\ref{sec:results-custom} (Table~\ref{tab:custom}),
+where all factors except the Stage-2 selection rule are held fixed.
+
+\begin{table}[ht]
 \centering\small
-\caption{Filtered test-set metrics for the two baselines (both = head/tail
-average). Training: NSSALoss ($\gamma=9$, $\alpha=1$), Bernoulli filtered
-sampler, $k=8$, 50 epochs, patience 10, $d=128$, Adam lr=$10^{-3}$, seed~42.}
+\caption{Filtered test-set metrics for the two PyKEEN baselines
+(both = head/tail average). Training: NSSALoss ($\gamma=9$, $\alpha=1$),
+Bernoulli filtered sampler, $k=8$, 50 epochs, patience 10, $d=128$,
+Adam lr=$10^{-3}$, seed~42. Reported as a reference point only;
+the controlled comparison is Table~\ref{tab:custom}.}
 \label{tab:baselines}
 \begin{tabular}{@{}lcccccc@{}}
 \toprule
@@ -297,7 +308,7 @@ and the same configuration as the custom pipeline, making all comparisons in
 this report internally consistent. The D2 numbers should not be used as a
 reference point for the ablation in Table~\ref{tab:custom}.
 
-\begin{figure}[h]
+\begin{figure}[ht]
 \centering
 \includegraphics[width=0.49\linewidth]{../../artifacts/baseline/TransE_curves.png}
 \includegraphics[width=0.49\linewidth]{../../artifacts/baseline/RotatE_curves.png}
@@ -307,14 +318,23 @@ despite marginally lower test MRR.}
 \label{fig:baseline-curves}
 \end{figure}
 
-\subsection{Custom pipeline: strategy ablation}
+\subsection{Custom pipeline: strategy ablation (central controlled result)}
+\label{sec:results-custom}
 
-\begin{table}[h]
+Table~\ref{tab:custom} is the \textbf{central controlled experiment} of this
+report. The five rows differ \emph{only} in the Stage-2 selection rule;
+model architecture, dimension, loss, optimizer, learning rate, batch size,
+candidate-pool size, $k$, sampler, epoch budget, and random seed are all
+held fixed. Any difference in test-set metrics is therefore attributable to
+the negative-selection strategy.
+
+\begin{table}[ht]
 \centering\small
-\caption{Filtered test-set metrics for all five custom RotatE runs.
-All runs: pool $n=64$, $k=8$, NSSALoss ($\gamma=9$, $\alpha=1$),
-Bernoulli filtered sampler, 50 epochs, $d=128$, Adam lr=$10^{-3}$, seed~42
-(CUDA, T4 GPU). Best per column in \textbf{bold}.}
+\caption{Filtered test-set metrics for all five custom RotatE runs ---
+\textbf{the central controlled comparison}. All runs: pool $n=64$, $k=8$,
+NSSALoss ($\gamma=9$, $\alpha=1$), Bernoulli filtered sampler, 50 epochs,
+$d=128$, Adam lr=$10^{-3}$, seed~42 (CUDA, T4 GPU). Only the Stage-2
+selection rule varies. Best per column in \textbf{bold}.}
 \label{tab:custom}
 \begin{tabular}{@{}lcccc@{}}
 \toprule
@@ -351,7 +371,7 @@ NSSALoss already up-weights plausible negatives at the loss level
 are already up-weighted by $p_i$ are also the ones the model finds most
 confusing, producing a doubly amplified gradient signal.
 
-\begin{figure}[h]
+\begin{figure}[ht]
 \centering
 \includegraphics[width=\linewidth]{../../artifacts/custom_learning_curves.png}
 \caption{Training loss (left) and validation MRR (right) over 50 epochs for
@@ -361,21 +381,25 @@ early stopping.}
 \label{fig:custom-curves}
 \end{figure}
 
-\subsection{Comparison with baselines}
+\subsection{Context: position relative to PyKEEN baselines}
 
-The best custom run (mixed~70\%, MRR~$=0.299$) outperforms both PyKEEN
-baselines by $+0.020$--$+0.022$ MRR (+7.0--+7.9\%). The random custom run
-(MRR~$=0.270$) actually falls slightly below the baselines, confirming that
-the gain comes from hard-negative \emph{selection}, not from the two-stage
-infrastructure itself. Note that this comparison is not fully controlled, as
-the PyKEEN baselines and the custom pipeline differ in their internal sampling
-infrastructure before Stage~2 (see Limitation 3 in Section~\ref{sec:discussion}).
+For \emph{context only} (not as a controlled comparison), the best custom run
+(mixed~70\%, MRR~$=0.299$) sits $+0.020$--$+0.022$ MRR above both PyKEEN
+baselines (Table~\ref{tab:baselines}), and the random custom run
+(MRR~$=0.270$) sits slightly \emph{below} them. The latter is the more
+informative observation: it indicates that the two-stage infrastructure on
+its own does not give a free MRR gain, so the improvement seen across
+Table~\ref{tab:custom} comes from hard-negative \emph{selection} rather than
+from the pipeline scaffolding. We deliberately do \emph{not} treat this as a
+causal claim against PyKEEN, because the two pipelines differ in their
+internal sampling infrastructure before Stage~2
+(see Limitation~3 in Section~\ref{sec:discussion}).
 
 %% ──────────────────────────────── 6. SLICE EVALUATION ───────────────────────
 \section{Slice Evaluation}
 \label{sec:slices}
 
-\begin{table}[h]
+\begin{table}[ht]
 \centering\scriptsize
 \caption{MRR by relation-frequency tertile (test set, filtered).
 Tertile cuts from training triples only.
@@ -394,7 +418,7 @@ Mixed 70\% & 0.416 & 0.362 & \textbf{0.285} \\
 \end{tabular}
 \end{table}
 
-\begin{table}[h]
+\begin{table}[ht]
 \centering\scriptsize
 \caption{MRR by tail in-degree tertile (test set, filtered).
 Low: $n=1{,}478$; Mid: $n=3{,}029$; High: $n=15{,}849$.}
@@ -412,7 +436,7 @@ Mixed 70\% & \textbf{0.188} & \textbf{0.175} & 0.330 \\
 \end{tabular}
 \end{table}
 
-\begin{table}[h]
+\begin{table}[ht]
 \centering\scriptsize
 \caption{MRR by head out-degree tertile (test set, filtered).}
 \label{tab:slice-head}
@@ -459,7 +483,7 @@ for a relation such as \texttt{/film/film/genre}, many distinct heads share
 the same tail, so head prediction must distinguish among many plausible
 entities that all correctly satisfy the query.
 
-\begin{figure}[h]
+\begin{figure}[ht]
 \centering
 \includegraphics[width=\linewidth]{../../artifacts/slice_bar_plots.png}
 \caption{Slice evaluation: MRR by relation frequency, head out-degree, and tail
@@ -480,7 +504,7 @@ Table~\ref{tab:qualitative} shows two illustrative examples drawn from the
 full report. In both cases, hard-negative training substantially reduces the
 rank of the correct entity compared to random sampling.
 
-\begin{table}[h]
+\begin{table}[ht]
 \centering\scriptsize
 \caption{Filtered rank of the gold entity for two representative test
 triples, across all five strategies (lower is better).
@@ -568,14 +592,28 @@ This combination of selection-level and loss-level hard-negative emphasis
 is absent when using a uniform-weight loss such as standard margin ranking,
 which may contribute to the magnitude of the improvement observed here.
 
-\paragraph{Limitations.}
-(1) All experiments use RotatE; the benefit of hard-negative selection on
-TransE may differ.
-(2) Pool size $n=64$ was not ablated; larger pools may surface harder
-negatives and amplify the effect.
-(3) Baseline RotatE via PyKEEN and custom RotatE via our pipeline are not
-directly comparable in their training infrastructure (different internal
-samplers before Stage~2); only the custom runs form a true controlled ablation.
+\paragraph{Limitations and scope of conclusions.}
+The conclusions of this report are explicitly scoped to the controlled
+setting of Table~\ref{tab:custom}. Three caveats follow.
+\textbf{(1)~RotatE-only.} All five ablation runs use RotatE with
+NSSALoss; we do \emph{not} claim that the same magnitude of gain transfers
+to TransE, ComplEx, or other KGE models. NSSALoss already up-weights
+plausible negatives, so part of the observed gain may stem from the
+synergy between selection-level hard mining and loss-level adversarial
+weighting. Replicating the ablation under, e.g., a margin-ranking loss or
+a TransE backbone is left for future work.
+\textbf{(2)~Fixed pool size $n=64$.} The candidate pool size is held
+constant across all five runs. With a smaller pool, hard selection has
+fewer candidates to choose from and the effect may shrink; with a larger
+pool, the top-$k$ candidates are likely harder and the gap to random may
+widen. We therefore present the $+0.028$ MRR figure as evidence under
+$n=64$, not as a pool-size-independent constant.
+\textbf{(3)~PyKEEN vs.\ custom comparability.} Baseline RotatE via PyKEEN
+and custom RotatE via our pipeline differ in their internal sampling
+infrastructure before Stage~2; the cross-pipeline numbers in
+Section~\ref{sec:results-custom} are reported for context, not as a
+controlled comparison. The only fully controlled comparison in this report
+is the strategy ablation within Table~\ref{tab:custom}.
 
 %% ──────────────────────────────── 9. CONCLUSION ──────────────────────────────
 \section{Conclusion}
