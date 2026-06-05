@@ -5,19 +5,6 @@ Joint project with Deep Learning (Project 425282 — Milestone 2)
 
 **Team:** Thalia Delhaise, Lenny Briclet, André Fonseca, Rafael Gufler
 
----
-
-## Final Report
-
-The final report (PDF) is located at:
-
-```
-submissions/final_report.pdf
-```
-
-It is also seperately uploaded in the hand-in.
-
----
 
 ## Code
 
