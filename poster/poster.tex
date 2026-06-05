@@ -43,15 +43,15 @@
 %% ── Layout constants ────────────────────────────────────────
 \newlength{\headerH}  \setlength{\headerH}{7.5cm}
 \newlength{\footerH}  \setlength{\footerH}{3.5cm}
-\newlength{\bodyGap}  \setlength{\bodyGap}{0.7cm}
+\newlength{\bodyGap}  \setlength{\bodyGap}{-1.3cm}
 \newlength{\bodySpacer}
   \setlength{\bodySpacer}{\headerH}
   \addtolength{\bodySpacer}{\bodyGap}
 
-%%  Column widths: 1.5 + 25.7 + 5.0 + 25.7 + 1.5 = 59.4 cm
-\newlength{\lrPad}  \setlength{\lrPad}{1.5cm}
-\newlength{\colW}   \setlength{\colW}{25.7cm}
-\newlength{\gapW}   \setlength{\gapW}{5.0cm}
+%%  Column widths: 2.5 + 25.95 + 2.5 + 25.95 + 2.5 = 59.4 cm
+\newlength{\lrPad}  \setlength{\lrPad}{2.5cm}
+\newlength{\colW}   \setlength{\colW}{25.95cm}
+\newlength{\gapW}   \setlength{\gapW}{2.5cm}
 
 %% ── Full-width section header (template style) ──────────────
 %% Spans exactly \linewidth using a fixed-height minipage inside colorbox
@@ -210,7 +210,7 @@ Models learn by comparing correct triples against \textit{negatives}
       \small Obama\;\textrightarrow\;born\_in\;\textrightarrow\;%
         \textit{Kansas City}\\[3pt]
       \small Obama\;\textrightarrow\;born\_in\;\textrightarrow\;%
-        \textit{Honolulu}\\[8pt]
+        \textit{Nairobi}\\[8pt]
       {\small\color{amber!80!black}\textit{%
         Plausible but wrong. Model keeps improving.}}%
     };
@@ -219,99 +219,26 @@ Models learn by comparing correct triples against \textit{negatives}
 
 \vspace{0.15cm}
 {\small\color{warmgray}
-  \textit{Honolulu is the correct answer here, making it the hardest
-  possible negative for this query.}}
+  \textit{Hard negatives are wrong answers the model finds plausible, they sit just below the correct answer (Honolulu) in the ranking.}}
 
 %% ── Motivation ───────────────────────────────────────────────
 \secheader{Motivation}
 
-\textbf{Random negatives} (gray box above) become trivial after a few
-epochs: the model rejects them easily, so the \textbf{gradient signal
-vanishes} and learning plateaus.
+\textbf{Random negatives} are too easy: the model rejects them
+quickly and stops improving.
 
 \vspace{0.18cm}
-\textbf{Hard negatives} (amber box) keep the model challenged, but
-training only on them can destabilise learning.
+\textbf{Hard negatives} carry a stronger signal, but always picking
+the same plausible-but-wrong cases could over-focus training.
 
 \vspace{0.18cm}
-\textbf{Our research question.} Can a \textbf{mixture} of random and
-hard negatives combine the accuracy of hard with the stability of
-random --- and what is the best proportion?
-
-%% ── Methodology ──────────────────────────────────────────────
-\secheader{Methodology}
-
-{\small For each positive triple at training time:}
-
-\vspace{0.3cm}
-\begin{center}
-\begin{tikzpicture}[
-  >=Stealth, font=\small,
-  box/.style={draw=secblue!70, fill=iceblue, rounded corners=5pt,
-              inner xsep=8pt, inner ysep=6pt,
-              minimum height=1.3cm, minimum width=4.0cm,
-              text width=3.8cm, align=center},
-  arr/.style={->, navy!80, line width=1.5pt},
-  stg/.style={font=\scriptsize\bfseries, text=secblue}
-]
-  \node[box] (pool)  {Draw \textbf{64}\\candidates\\(random corruption)};
-  \node[box, right=0.9cm of pool]  (score) {Score each\\with model\\$f_\theta$};
-  \node[box, right=0.9cm of score] (sel)   {Select \textbf{8}\\by strategy};
-  \node[box, right=0.9cm of sel]   (loss)  {Compute\\NSSA loss\\back-prop};
-  \draw[arr] (pool.east) -- (score.west);
-  \draw[arr] (score.east) -- (sel.west);
-  \draw[arr] (sel.east) -- (loss.west);
-  \node[stg, above=0.18cm of pool]  {Stage 1};
-  \node[stg, above=0.18cm of score] {Stage 2};
-  \node[stg, above=0.18cm of sel]   {Stage 2};
-  \node[stg, above=0.18cm of loss]  {Stage 2};
-\end{tikzpicture}
-\end{center}
-
-\vspace{0.25cm}
-{\small
-\textbf{Selection strategies tested in Stage~2:}\\[5pt]
-\hspace*{6pt}$\bullet$~\textbf{Random}: sample 8 uniformly (control)\\[3pt]
-\hspace*{6pt}$\bullet$~\textbf{Hard}: take the 8 highest-scoring wrong candidates\\[3pt]
-\hspace*{6pt}$\bullet$~\textbf{Mixed $p$}: take fraction $p$ hard + $(1-p)$ random,
-  with $p\in\{30\%,\,50\%,\,70\%\}$\\[8pt]
-\textbf{All strategies share the same Stage~1 pool: zero extra compute.}\\[5pt]
-Common setup: RotatE, embedding dim~128, batch~1024, Adam lr$=10^{-3}$,
-50~epochs (patience~10), seed~42.
-}
-
-%% ── References ───────────────────────────────────────────────
-\secheader{References}
-
-{\footnotesize\setlength{\itemsep}{3pt}
-\begin{enumerate}
-\item[{[1]}] Sun~\textit{et al.}\ (2019).
-  \textit{RotatE: Knowledge Graph Embedding by Relational Rotation
-  in Complex Space.} ICLR 2019.
-\item[{[2]}] Cai \& Wang (2018).
-  \textit{KBGAN: Adversarial Learning for Knowledge Graph Embeddings.}
-  NAACL 2018.
-\item[{[3]}] Toutanova \& Chen (2015).
-  \textit{Observed versus latent features for KB and text inference.}
-  ACL Workshop 2015 (FB15k-237 dataset).
-\end{enumerate}
-}
-
-\end{column}
-
-%% Gap ─────────────────────────────────────────────────────────
-\begin{column}{\gapW}\end{column}
-
-%% ─────────────────────────────────────────────────────────────
-%% RIGHT COLUMN
-%% ─────────────────────────────────────────────────────────────
-\begin{column}{\colW}
-\RaggedRight
+\textbf{Question:} would a \textbf{mix} of random and hard combine
+both effects, and at what proportion?
 
 %% ── Datasets ─────────────────────────────────────────────────
-\secheader{Datasets}
+\secheader{Dataset}
 
-\textbf{FB15k-237} is a widely used benchmark knowledge graph
+\textbf{FB15k-237}~[2] is a widely used benchmark knowledge graph
 derived from Freebase, covering people, places, films, and organisations.
 Each node is an \textbf{entity}; each labelled edge is a \textbf{fact}.
 
@@ -332,7 +259,7 @@ Each node is an \textbf{entity}; each labelled edge is a \textbf{fact}.
   \node[ent]        (usa)    at (-5.0cm,  2.6cm) {United States};
   \node[ent]        (hono)   at ( 5.0cm,  2.6cm) {Honolulu};
   \node[ent]        (pol)    at (-5.0cm, -2.6cm) {Politician};
-  \node[ent]        (hawaii) at ( 5.0cm, -2.6cm) {Hawai'i};
+  \node[ent]        (hawaii) at ( 5.0cm, -2.6cm) {Hawaii};
   \draw[->] (obama) -- node[lbl, pos=0.45] {nationality} (usa);
   \draw[->] (obama) -- node[lbl, pos=0.45] {born\_in}    (hono);
   \draw[->] (obama) -- node[lbl, pos=0.45] {occupation}  (pol);
@@ -351,7 +278,108 @@ Each node is an \textbf{entity}; each labelled edge is a \textbf{fact}.
 \vspace{0.1cm}
 Relation frequencies range over \textbf{three orders of magnitude}
 (37 to 15,989 occurrences), enabling stratified evaluation by rarity.
+
 }
+
+%% ── Methodology ──────────────────────────────────────────────
+\secheader{Methodology}
+
+{\small\textbf{Controlled ablation.} We hold every hyper-parameter
+fixed (data, model, optimiser, seed) across five training runs
+and \textbf{vary only the negative-selection rule}.}
+
+\vspace{0.3cm}
+{\small\textbf{1.~The training pipeline.} For each positive triple:}
+
+\vspace{0.2cm}
+\begin{center}
+\begin{tikzpicture}[
+  >=Stealth, font=\small,
+  s1box/.style={draw=amber, line width=1.2pt, fill=amberlt,
+                rounded corners=5pt,
+                inner xsep=8pt, inner ysep=6pt,
+                minimum height=1.3cm, minimum width=4.0cm,
+                text width=3.8cm, align=center},
+  s2box/.style={draw=secblue!70, fill=iceblue, rounded corners=5pt,
+                inner xsep=8pt, inner ysep=6pt,
+                minimum height=1.3cm, minimum width=4.0cm,
+                text width=3.8cm, align=center},
+  arr/.style={->, navy!80, line width=1.5pt}
+]
+  \node[s1box] (pool)  {Draw \textbf{64} filtered\\candidates\\(Bernoulli corruption)};
+  \node[s2box, right=0.9cm of pool]  (score) {Score each\\with model\\$f_\theta$};
+  \node[s2box, right=0.9cm of score] (sel)   {Select \textbf{8}\\\textbf{by strategy}};
+  \node[s2box, right=0.9cm of sel]   (loss)  {Compute\\NSSA loss\\back-prop};
+  \draw[arr] (pool.east)  -- (score.west);
+  \draw[arr] (score.east) -- (sel.west);
+  \draw[arr] (sel.east)   -- (loss.west);
+
+  %% Group labels: Stage 1 (one box) and Stage 2 (next three)
+  \node[font=\scriptsize\bfseries, color=amber!90!black,
+        above=0.05cm of pool] {Stage 1: pool};
+  \draw[secblue, line width=0.9pt]
+    ($(score.north west)+(0,0.18)$) -- ($(loss.north east)+(0,0.18)$);
+  \node[font=\scriptsize\bfseries, color=secblue,
+        above=0.20cm of sel] {Stage 2: train (varies)};
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.3cm}
+{\small\textbf{2.~The five strategies} (only the
+\textbf{\textcolor{secblue}{``Select 8 by strategy''}} box differs):}
+
+\vspace{0.18cm}
+\begin{center}
+\begin{tikzpicture}[font=\small]
+  \node[draw=warmgray!60, fill=softgray, rounded corners=5pt,
+        inner sep=8pt, text width=7.3cm, align=left]
+        (rand) {%
+    {\bfseries\color{warmgray}\textsc{Random}}~\,(control)\\[3pt]
+    Pick 8 of the 64 candidates\\\emph{uniformly at random}.\\[3pt]
+    {\footnotesize\color{warmgray}\itshape Easy negatives, weak gradient.}%
+  };
+  \node[draw=amber, line width=1.2pt, fill=amberlt, rounded corners=5pt,
+        inner sep=8pt, text width=7.3cm, align=left,
+        right=0.4cm of rand]
+        (hard) {%
+    {\bfseries\color{amber}\textsc{Hard}}\\[3pt]
+    Pick the 8 \emph{highest-scoring} wrong candidates\\
+    (model finds them most plausible).\\[3pt]
+    {\footnotesize\color{amber!80!black}\itshape Strong signal,
+    can over-focus.}%
+  };
+  \node[draw=secblue, line width=1.2pt, fill=iceblue, rounded corners=5pt,
+        inner sep=8pt, text width=7.3cm, align=left,
+        right=0.4cm of hard]
+        (mix) {%
+    {\bfseries\color{secblue}\textsc{Mixed} $p\,\%$}\\[3pt]
+    $p\%$ hard $+$ $(1{-}p)\%$ random,\\
+    with $p\in\{30,\,50,\,70\}$.\\[3pt]
+    {\footnotesize\color{secblue!80!black}\itshape Trade-off:
+    accuracy + stability.}%
+  };
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.25cm}
+{\small\textbf{3.~Setup.} All strategies share the same Stage-1 pool
+(\emph{zero extra compute}). RotatE~[1], dim~128, batch~1024,
+Adam lr$=10^{-3}$, 50 epochs (patience~10), seed~42.}
+
+
+
+\end{column}
+
+%% Gap ─────────────────────────────────────────────────────────
+\begin{column}{\gapW}\end{column}
+
+%% ─────────────────────────────────────────────────────────────
+%% RIGHT COLUMN
+%% ─────────────────────────────────────────────────────────────
+\begin{column}{\colW}
+\RaggedRight
+
+
 
 %% ── Results ──────────────────────────────────────────────────
 \secheader{Results}
@@ -380,9 +408,9 @@ Relation frequencies range over \textbf{three orders of magnitude}
 Strategy          & MRR            & H@1            & H@3   & H@10  \\
 \midrule
 Random (baseline) & 0.270          & 0.189          & 0.300 & 0.428 \\
-Hard              & 0.298          & 0.217          & 0.327 & 0.459 \\
+Hard              & 0.298          & \textbf{0.217}          & 0.327 & 0.459 \\
 Mixed 30\%        & 0.297          & 0.215          & 0.326 & 0.459 \\
-Mixed 50\%        & 0.298          & 0.216          & 0.328 & 0.460 \\
+Mixed 50\%        & 0.298          & 0.216          & \textbf{0.328} & 0.460 \\
 Mixed 70\%        & \textbf{0.299} & \textbf{0.217} &
                     \textbf{0.328} & \textbf{0.461} \\
 \midrule
@@ -399,92 +427,127 @@ $\Delta$ Hard\,--\,Random & +0.028 & +0.028 & +0.026 & +0.031 \\
   }%
 }
 
-\vspace{0.35cm}
+\vspace{0.1cm}
 \begin{center}
-  \includegraphics[height=11cm, keepaspectratio]{figures/val_mrr_curves}
+  \includegraphics[height=5.5cm, keepaspectratio]{figures/val_mrr_curves}
 \end{center}
 
-{\small Hard and mixed strategies \textbf{pull ahead from random after
-epoch~15} and converge to a 7--8\,\% higher plateau with no
-training instability.}
+\vspace{-0.2cm}
+{\footnotesize\color{warmgray}
+Hard\,/\,mixed strategies pull ahead after epoch~15; no instability.}
 
-\vspace{0.25cm}
-{\small\textbf{Stratified evaluation, MRR gain Hard vs.\ Random:}}
+\vspace{0.3cm}
+\noindent\colorbox{navy}{%
+  \textcolor{white}{\,\fontsize{16}{20}\selectfont\bfseries
+    Where do the gains come from?\,}%
+}
+
+\vspace{0.18cm}
+{\small Average MRR can hide \emph{where} a method really helps.
+We slice the test set along \textbf{three axes}, relation frequency,
+head out-degree, tail in-degree, at the 33rd / 67th percentiles of
+the training distribution, and recompute MRR per tertile.}
 
 \vspace{0.2cm}
 \begin{center}
-\begin{tikzpicture}[font=\small]
-  \node[
-    fill=forestlt, draw=forest, line width=1.2pt, rounded corners=5pt,
-    inner sep=9pt, minimum width=6.5cm, minimum height=3.0cm, align=center
-  ] (rare) {%
-    {\fontsize{26}{30}\selectfont\bfseries\color{forest}+3.6\,pp}\\[5pt]
-    \textbf{Rare relations}\\
-    {\footnotesize\color{warmgray}0.382\,$\to$\,0.418}%
-  };
-  \node[
-    fill=iceblue, draw=secblue, line width=1.2pt, rounded corners=5pt,
-    inner sep=9pt, minimum width=6.5cm, minimum height=3.0cm, align=center,
-    right=0.6cm of rare
-  ] (med) {%
-    {\fontsize{26}{30}\selectfont\bfseries\color{secblue}+3.0\,pp}\\[5pt]
-    \textbf{Medium relations}\\
-    {\footnotesize\color{warmgray}0.332\,$\to$\,0.362}%
-  };
-  \node[
-    fill=softgray, draw=black!20, line width=1.2pt, rounded corners=5pt,
-    inner sep=9pt, minimum width=6.5cm, minimum height=3.0cm, align=center,
-    right=0.6cm of med
-  ] (freq) {%
-    {\fontsize{26}{30}\selectfont\bfseries\color{warmgray}+2.8\,pp}\\[5pt]
-    \textbf{Frequent relations}\\
-    {\footnotesize\color{warmgray}0.257\,$\to$\,0.285}%
-  };
-\end{tikzpicture}
+  \includegraphics[width=\linewidth, keepaspectratio]{figures/slice_bar_plots}
 \end{center}
 
-{\small Hard negatives benefit \emph{every} slice, but gain is largest
-for \textbf{rare relations} where random negatives are least informative.}
+\vspace{-0.1cm}
+{\footnotesize\color{warmgray}
+Hard and mixed variants
+\textbf{uniformly dominate Random in every bucket}.}
+
+\vspace{0.25cm}
+{\small\textbf{Biggest gains} (Hard vs.\ Random, in pp = percentage
+points): rare relations \textbf{+3.6}; high head out-degree
+\textbf{+3.1}; low tail in-degree \textbf{+3.0}.}
+
+\vspace{0.15cm}
+\noindent\colorbox{forestlt}{%
+\begin{minipage}{\dimexpr\linewidth-14pt\relax}
+{\small\textbf{\color{forest}Take-home:} hard negatives shine on
+\emph{every} slice; the single biggest gain is on rare relations
+(+3.6\,pp), whose embeddings are the most under-trained.}
+\end{minipage}}
+
+%% ── Qualitative example ─────────────────────────────────────
+\secheader{Qualitative check}
+
+{\small Tail prediction for \texttt{(Film, release\_region, ?)}
+(filtered rank of the \textbf{gold entity}, lower is better):}
+
+\vspace{0.1cm}
+\setlength{\fboxsep}{8pt}%
+\colorbox{softgray}{\begin{minipage}{\dimexpr\linewidth-16pt\relax}
+{\small
+\begin{tabular}{@{}l@{\hspace{0.6cm}}c@{\hspace{1.8cm}}l@{\hspace{0.6cm}}c@{}}
+Random         & rank 9          & Mixed 30\,\%   & rank \textbf{1} \\
+\textbf{Hard}  & rank \textbf{1} & Mixed 50/70\,\% & rank 3          \\
+\end{tabular}
+}\\[4pt]
+{\footnotesize\color{warmgray}\itshape
+Random buries the gold answer at rank 9; Hard (and even 30\,\% hard)
+pulls it to the top.}
+\end{minipage}}
 
 %% ── Conclusions ──────────────────────────────────────────────
 \secheader{Conclusions}
 
-\begin{itemize}\setlength{\itemsep}{7pt}
-  \item \textbf{Hard negatives are a free upgrade:} same training pipeline,
-    smarter selection step, +10.4\% MRR gain.
-  \item \textbf{You don't need 100\% hard:} Mixed 30\% (2 hard examples
-    out of 8) recovers 95\% of the gain with added stability.
-  \item \textbf{Rare and ambiguous facts benefit most,} which is exactly
-    where KG completion is hardest and most valuable in practice.
-  \item \textbf{Future work:} dynamically adjust the hard fraction during
-    training; scale to Wikidata-5M; test on RESCAL and TuckER.
+\begin{itemize}\setlength{\itemsep}{3pt}
+  \item \textbf{Hard negatives are a free upgrade:} same pipeline,
+    smarter selection step, +10.4\% MRR.
+  \item \textbf{You don't need 100\% hard:} Mixed 30\% (2 of 8 hard)
+    recovers 95\% of the gain with added stability.
+  \item \textbf{Gains are largest on data-sparse slices (rare
+    relations +3.6\,pp, low tail in-degree +3.0\,pp):} sparse training
+    data leaves embeddings under-trained, so each hard-negative step
+    is more informative.
+  \item \textbf{Head prediction stays $\sim$2$\times$ harder
+    ($\sim$0.18 vs.\ $\sim$0.39 MRR):} FB15k-237 is dominated by
+    \textbf{N-to-1} relations (e.g.\ \texttt{/film/film/genre}), so
+    many heads compete for the same tail. This is a dataset bias no
+    sampling rule fixes.
 \end{itemize}
+
+%% ── References ───────────────────────────────────────────────
+\secheader{References}
+
+{\footnotesize
+\begin{enumerate}\setlength{\itemsep}{3pt}
+\item[{[1]}] Z.~Sun, Z.-H.~Deng, J.-Y.~Nie, J.~Tang.
+  \textit{RotatE: Knowledge Graph Embedding by Relational Rotation
+  in Complex Space.} ICLR 2019. \hfill (model)
+\item[{[2]}] K.~Toutanova, D.~Chen.
+  \textit{Observed versus latent features for knowledge base
+  and text inference.} ACL Workshop 2015. \hfill (FB15k-237)
+\end{enumerate}
+}
+
+%% ── Acknowledgements ────────────────────────────────────────
+\vspace{1.5cm}
+\noindent
+\begin{minipage}{\linewidth}
+\setlength{\fboxsep}{12pt}%
+\colorbox{navy}{\begin{minipage}{\dimexpr\linewidth-24pt\relax}%
+  \begin{minipage}[c]{0.62\linewidth}
+    \color{white}\small
+    \textbf{Acknowledgements.}\\[2pt]
+    This poster session is kindly sponsored by:
+  \end{minipage}\hfill
+  \begin{minipage}[c]{0.34\linewidth}
+    \raggedleft
+    \setlength{\fboxsep}{4pt}%
+    \colorbox{white}{\includegraphics[height=1.6cm]{images/nttdata_logo}}%
+  \end{minipage}
+\end{minipage}}
+\end{minipage}
 
 \end{column}
 
 \begin{column}{\lrPad}\end{column}
 \end{columns}
 
-%% ════════════════════════════════════════════════════════════
-%% FOOTER
-%% ════════════════════════════════════════════════════════════
-\begin{tikzpicture}[remember picture, overlay]
-  \fill[navy]
-    (current page.south west) rectangle
-    ([yshift=\footerH]current page.south east);
-
-  \node[anchor=west, inner sep=0pt] at
-    ($(current page.south west)+(2cm, 0.5\footerH)$) {%
-      \color{white}\fontsize{16}{20}\selectfont
-      Acknowledgements: This poster session is kindly sponsored by:%
-    };
-
-  \node[anchor=east, inner sep=0pt] at
-    ($(current page.south east)+(-2cm, 0.5\footerH)$) {%
-      \setlength{\fboxsep}{4pt}%
-      \colorbox{white}{\includegraphics[height=2.2cm]{images/nttdata_logo}}%
-    };
-\end{tikzpicture}
 
 \end{frame}
 \end{document}
