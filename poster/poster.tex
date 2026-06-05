@@ -43,24 +43,14 @@
 %% ── Layout constants ────────────────────────────────────────
 \newlength{\headerH}  \setlength{\headerH}{7.5cm}
 \newlength{\footerH}  \setlength{\footerH}{3.5cm}
-<<<<<<< HEAD
 \newlength{\bodyGap}  \setlength{\bodyGap}{-1.3cm}
-=======
-\newlength{\bodyGap}  \setlength{\bodyGap}{0.1cm}
->>>>>>> b88a7d383027c78cff55c704a39715ff62ff75a7
 \newlength{\bodySpacer}
   \setlength{\bodySpacer}{\headerH}
   \addtolength{\bodySpacer}{\bodyGap}
 
-<<<<<<< HEAD
 %%  Column widths: 2.5 + 25.95 + 2.5 + 25.95 + 2.5 = 59.4 cm
 \newlength{\lrPad}  \setlength{\lrPad}{2.5cm}
 \newlength{\colW}   \setlength{\colW}{25.95cm}
-=======
-%%  Column widths: 1.5 + 26.95 + 2.5 + 26.95 + 1.5 = 59.4 cm
-\newlength{\lrPad}  \setlength{\lrPad}{1.5cm}
-\newlength{\colW}   \setlength{\colW}{26.95cm}
->>>>>>> b88a7d383027c78cff55c704a39715ff62ff75a7
 \newlength{\gapW}   \setlength{\gapW}{2.5cm}
 
 %% ── Full-width section header (template style) ──────────────
@@ -234,7 +224,6 @@ Models learn by comparing correct triples against \textit{negatives}
 %% ── Motivation ───────────────────────────────────────────────
 \secheader{Motivation}
 
-<<<<<<< HEAD
 \textbf{Random negatives} are too easy: the model rejects them
 quickly and stops improving.
 
@@ -245,91 +234,10 @@ the same plausible-but-wrong cases could over-focus training.
 \vspace{0.18cm}
 \textbf{Question:} would a \textbf{mix} of random and hard combine
 both effects, and at what proportion?
-=======
-\textbf{Random negatives} become trivial after a few epochs: the model
-rejects them easily, so the \textbf{gradient signal vanishes} and
-learning plateaus.
-
-\vspace{0.12cm}
-\textbf{Hard negatives} keep the model challenged throughout training,
-but using them exclusively can destabilise learning.
-\textbf{A mixed strategy} combines both.
-
-\vspace{0.12cm}
-\textbf{Question:} What mixture gives the best accuracy--stability
-trade-off on FB15k-237?
-
-%% ── Methodology ──────────────────────────────────────────────
-\secheader{Methodology}
-
-{\small For each positive triple at training time:}
-
-\vspace{0.3cm}
-\begin{center}
-\begin{tikzpicture}[
-  >=Stealth, font=\small,
-  box/.style={draw=secblue!70, fill=iceblue, rounded corners=5pt,
-              inner xsep=8pt, inner ysep=6pt,
-              minimum height=1.3cm, minimum width=4.0cm,
-              text width=3.8cm, align=center},
-  arr/.style={->, navy!80, line width=1.5pt},
-  stg/.style={font=\scriptsize\bfseries, text=secblue}
-]
-  \node[box] (pool)  {Draw \textbf{64}\\candidates\\(random corruption)};
-  \node[box, right=0.9cm of pool]  (score) {Score each\\with model\\$f_\theta$};
-  \node[box, right=0.9cm of score] (sel)   {Select \textbf{8}\\by strategy};
-  \node[box, right=0.9cm of sel]   (loss)  {Compute\\NSSA loss\\back-prop};
-  \draw[arr] (pool.east) -- (score.west);
-  \draw[arr] (score.east) -- (sel.west);
-  \draw[arr] (sel.east) -- (loss.west);
-  \node[stg, above=0.18cm of pool]  {Stage 1};
-  \node[stg, above=0.18cm of score] {Stage 2};
-  \node[stg, above=0.18cm of sel]   {Stage 2};
-  \node[stg, above=0.18cm of loss]  {Stage 2};
-\end{tikzpicture}
-\end{center}
-
-\vspace{0.25cm}
-{\small
-\textbf{Selection strategies tested in Stage~2:}\\[5pt]
-\hspace*{6pt}$\bullet$~\textbf{Random}: sample 8 uniformly (control)\\[3pt]
-\hspace*{6pt}$\bullet$~\textbf{Hard}: take the 8 highest-scoring wrong candidates\\[3pt]
-\hspace*{6pt}$\bullet$~\textbf{Mixed $p$}: take fraction $p$ hard + $(1-p)$ random,
-  with $p\in\{30\%,\,50\%,\,70\%\}$\\[8pt]
-\textbf{All strategies share the same Stage~1 pool: zero extra compute.}\\[5pt]
-Common setup: RotatE, embedding dim~128, batch~1024, Adam lr$=10^{-3}$,
-50~epochs (patience~10), seed~42.
-}
-
-%% ── References ───────────────────────────────────────────────
-\secheader{References}
-
-{\footnotesize
-\begin{enumerate}\setlength{\itemsep}{2pt}
-\item[{[1]}] Sun~\textit{et al.}\ (2019). \textit{RotatE.} ICLR 2019.
-\item[{[2]}] Wang~\textit{et al.}\ (2014). \textit{Knowledge Graph Embedding
-  by Translating on Hyperplanes (Bernoulli sampler).} AAAI 2014.
-\item[{[3]}] Toutanova \& Chen (2015). \textit{FB15k-237 dataset.}
-  ACL Workshop 2015.
-\end{enumerate}
-}
-
-\end{column}
-
-%% Gap ─────────────────────────────────────────────────────────
-\begin{column}{\gapW}\end{column}
-
-%% ─────────────────────────────────────────────────────────────
-%% RIGHT COLUMN
-%% ─────────────────────────────────────────────────────────────
-\begin{column}{\colW}
-\RaggedRight
->>>>>>> b88a7d383027c78cff55c704a39715ff62ff75a7
 
 %% ── Datasets ─────────────────────────────────────────────────
 \secheader{Dataset}
 
-<<<<<<< HEAD
 \textbf{FB15k-237}~[2] is a widely used benchmark knowledge graph
 derived from Freebase, covering people, places, films, and organisations.
 Each node is an \textbf{entity}; each labelled edge is a \textbf{fact}.
@@ -361,27 +269,15 @@ Each node is an \textbf{entity}; each labelled edge is a \textbf{fact}.
 \end{center}
 
 \vspace{0.1cm}
-=======
->>>>>>> b88a7d383027c78cff55c704a39715ff62ff75a7
 {\small
-\textbf{FB15k-237}~[3] — Freebase benchmark, widely used for KG link prediction.
-
-\vspace{0.18cm}
-\begin{tabular}{@{}lr@{\hspace{1.0cm}}lr@{}}
+\begin{tabular}{@{}lr@{\hspace{1.2cm}}lr@{}}
   Entities:       & 14,505 & Train triples: & 272,115 \\
-  Relation types: & 237    & Val\,/\,Test:  & 17,526\,/\,20,438 \\
+  Relation types: & 237    & Val / Test:    & 17,526 / 20,438 \\
 \end{tabular}
 
-<<<<<<< HEAD
 \vspace{0.1cm}
 Relation frequencies range over \textbf{three orders of magnitude}
 (37 to 15,989 occurrences), enabling stratified evaluation by rarity.
-
-=======
-\vspace{0.12cm}
-Relation frequencies span \textbf{three orders of magnitude}
-(37–15,989 occurrences), enabling stratified slice evaluation.
->>>>>>> b88a7d383027c78cff55c704a39715ff62ff75a7
 }
 
 %% ── Methodology ──────────────────────────────────────────────
@@ -524,26 +420,16 @@ $\Delta$ Hard\,--\,Random & +0.028 & +0.028 & +0.026 & +0.031 \\
 }
 
 %% ── Key takeaway (one sentence) ─────────────────────────────
-\vspace{0.15cm}
-\begin{center}
-\begin{tikzpicture}
-  \node[fill=navy, rounded corners=6pt, inner sep=10pt,
-        text width=25cm, align=center]{%
-    {\fontsize{15}{19}\selectfont\bfseries\color{white}
-      Hard or mixed negatives improve ranking by \textbf{+10.4\,\%},
-      especially on rare and difficult relation\,/\,entity slices.}%
-  };
-\end{tikzpicture}
-\end{center}
+
 
 \vspace{0.1cm}
+\begin{center}
 \noindent\colorbox{forest}{%
   \textcolor{white}{\small\bfseries\,%
     Mixed 30\% hard recovers 95\% of the gain at zero extra cost.\,%
   }%
 }
-
-<<<<<<< HEAD
+\end{center}
 \vspace{0.1cm}
 \begin{center}
   \includegraphics[height=5.5cm, keepaspectratio]{figures/val_mrr_curves}
@@ -568,19 +454,8 @@ the training distribution, and recompute MRR per tertile.}
 \vspace{0.2cm}
 \begin{center}
   \includegraphics[width=\linewidth, keepaspectratio]{figures/slice_bar_plots}
-=======
-%% ── Slice evaluation chart ───────────────────────────────────
-\vspace{0.25cm}
-{\small\textbf{Slice evaluation — MRR by relation frequency (test set, filtered):}}
-\vspace{0.1cm}
-\begin{center}
-  \includegraphics[width=\linewidth, keepaspectratio]{figures/slice_rel_freq}
->>>>>>> b88a7d383027c78cff55c704a39715ff62ff75a7
 \end{center}
-{\small Gain is largest on \textbf{rare relations} (+3.6\,pp: 0.382\,$\to$\,0.418)
-where random negatives are least informative.}
 
-<<<<<<< HEAD
 \vspace{-0.1cm}
 {\footnotesize\color{warmgray}
 Hard and mixed variants
@@ -617,30 +492,6 @@ Random         & rank 9          & Mixed 30\,\%   & rank \textbf{1} \\
 {\footnotesize\color{warmgray}\itshape
 Random buries the gold answer at rank 9; Hard (and even 30\,\% hard)
 pulls it to the top.}
-=======
-%% ── Qualitative rank example ─────────────────────────────────
-\vspace{0.2cm}
-{\small\textbf{Qualitative example} — query: (Film,~\texttt{release\_region},~?),
-gold: \textbf{France}}
-
-\vspace{0.1cm}
-\setlength{\fboxsep}{7pt}%
-\colorbox{softgray}{\begin{minipage}{\dimexpr\linewidth-14pt\relax}
-{\small
-\begin{tabular}{@{}lcc@{}}
-\toprule
-Strategy & Rank of France & \\
-\midrule
-Random (control) & 9 & \textcolor{warmgray}{buried} \\
-Hard             & \textbf{1} & \textcolor{forest}{\bfseries $\checkmark$ correct} \\
-Mixed 30\%       & \textbf{1} & \textcolor{forest}{\bfseries $\checkmark$ correct} \\
-Mixed 50\%/70\%  & 3 & \textcolor{secblue}{near top} \\
-\bottomrule
-\end{tabular}
-}\\[3pt]
-{\footnotesize\color{warmgray}%
-Hard training pushes France from rank~9 to rank~1. Even 30\% hard fully recovers it.}%
->>>>>>> b88a7d383027c78cff55c704a39715ff62ff75a7
 \end{minipage}}
 
 %% ── Conclusions ──────────────────────────────────────────────
@@ -677,7 +528,7 @@ Hard training pushes France from rank~9 to rank~1. Even 30\% hard fully recovers
 }
 
 %% ── Acknowledgements ────────────────────────────────────────
-\vspace{1.5cm}
+\vspace{1cm}
 \noindent
 \begin{minipage}{\linewidth}
 \setlength{\fboxsep}{12pt}%
